@@ -44,6 +44,7 @@ var mainStore = new Ext.data.ArrayStore({
     ,'category'
   ]
 });
+
 var defaultLayers = {};
 var defaultStyles = {};
 var guaranteeDefaultStyles = {};
@@ -253,7 +254,7 @@ function initMainStore() {
           ,'name'                 : layerConfig.availableLayers[layerType][i].title
           ,'displayName'          : layerConfig.availableLayers[layerType][i].title
           ,'info'                 : 'off'
-          ,'status'               : defaultLayers[layerConfig.availableLayers[layerType][i].title] ? 'on' : 'off'
+          ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
           ,'settingsParam'        : 'baseStyle,colorMap,barbLabel,striding,tailMag,min,max'
@@ -288,7 +289,7 @@ function initMainStore() {
           ,'name'                 : layerConfig.availableLayers[layerType][i].title
           ,'displayName'          : layerConfig.availableLayers[layerType][i].title
           ,'info'                 : 'off'
-          ,'status'               : defaultLayers[layerConfig.availableLayers[layerType][i].title] ? 'on' : 'off'
+          ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
           ,'settingsParam'        : 'baseStyle,barbLabel,striding,min,max'
@@ -323,7 +324,7 @@ function initMainStore() {
           ,'name'                 : layerConfig.availableLayers[layerType][i].title
           ,'displayName'          : layerConfig.availableLayers[layerType][i].title
           ,'info'                 : 'off'
-          ,'status'               : defaultLayers[layerConfig.availableLayers[layerType][i].title] ? 'on' : 'off'
+          ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
           ,'settingsParam'        : ''
@@ -358,7 +359,7 @@ function initMainStore() {
           ,'name'                 : layerConfig.availableLayers[layerType][i].title
           ,'displayName'          : layerConfig.availableLayers[layerType][i].title
           ,'info'                 : 'off'
-          ,'status'               : defaultLayers[layerConfig.availableLayers[layerType][i].title] ? 'on' : 'off'
+          ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
           ,'settingsParam'        : ''
@@ -459,9 +460,9 @@ function initMainStore() {
 
 function initComponents() {
   var introPanel = new Ext.Panel({
-     height : brandHeight
+     height : 52
     ,border : false
-    ,html   : brandHTML
+    ,html   : '<table class="smallFont" width="100%"><tr><td align=center><a target=_blank href="' + bannerHref + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
   });
 
   var currentsSelModel = new Ext.grid.CheckboxSelectionModel({
@@ -496,6 +497,12 @@ function initComponents() {
       layersToSyncBbox['currents'] = true;
       needToInitGridPanel['currents'] = true;
       syncLayersToBbox('currents');
+      var sm = grid.getSelectionModel();
+      currentsStore.each(function(rec) {
+        if (rec.get('status') == 'on') {
+          sm.selectRecords([rec],true);
+        }
+      });
     }}
     ,tbar             : [
       {
@@ -540,6 +547,12 @@ function initComponents() {
       layersToSyncBbox['winds'] = true;
       needToInitGridPanel['winds'] = true;
       syncLayersToBbox('winds');
+      var sm = grid.getSelectionModel();
+      windsStore.each(function(rec) {
+        if (rec.get('status') == 'on') {
+          sm.selectRecords([rec],true);
+        }
+      });
     }}
     ,tbar             : [
       {
@@ -584,6 +597,12 @@ function initComponents() {
       layersToSyncBbox['waves'] = true;
       needToInitGridPanel['waves'] = true;
       syncLayersToBbox('waves');
+      var sm = grid.getSelectionModel();
+      wavesStore.each(function(rec) {
+        if (rec.get('status') == 'on') {
+          sm.selectRecords([rec],true);
+        }
+      });
     }}
     ,tbar             : [
       {
@@ -628,6 +647,12 @@ function initComponents() {
       layersToSyncBbox['temperatures'] = true;
       needToInitGridPanel['temperatures'] = true;
       syncLayersToBbox('temperatures');
+      var sm = grid.getSelectionModel();
+      temperaturesStore.each(function(rec) {
+        if (rec.get('status') == 'on') {
+          sm.selectRecords([rec],true);
+        }
+      });
     }}
     ,tbar             : [
       {
@@ -672,6 +697,12 @@ function initComponents() {
       layersToSyncBbox['other'] = true;
       needToInitGridPanel['other'] = true;
       syncLayersToBbox('other');
+      var sm = grid.getSelectionModel();
+      otherStore.each(function(rec) {
+        if (rec.get('status') == 'on') {
+          sm.selectRecords([rec],true);
+        }
+      });
     }}
     ,tbar             : [
       {

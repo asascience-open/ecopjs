@@ -9,6 +9,7 @@
   );
   $layerStack = array();
   $xml = @simplexml_load_file($wms.'service=WMS-'.$_COOKIE['softwareKey'].'&version=1.1.1&request=getcapabilities');
+  $defaultLayers = explode(',',$_COOKIE['defaultLayers']);
   foreach ($xml->{'Capability'}[0]->{'Layer'}[0]->{'Layer'} as $l) {
     $a = array(
        'title'    => sprintf("%s",$l->{'Title'})
@@ -20,6 +21,7 @@
         ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'maxx'})
         ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'maxy'})
       )
+      ,'status'   => in_array(sprintf("%s",$l->{'Name'}),$defaultLayers) ? 'on' : 'off'
     );
     if (preg_match('/_CURRENTS$/',$a['name'])) {
       $a['type']  = 'currents';

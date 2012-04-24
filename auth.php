@@ -30,8 +30,12 @@ function confirmUser($username,$password,$url)
     }
     else {
       setcookie("failedLogin");
-      setcookie("softwareKey",$xml->{'softwareKey'});
-      setcookie("bounds"     ,$xml->{'bounds'});
+      setcookie("softwareKey"  ,$xml->{'softwareKey'});
+      setcookie("bounds"       ,$xml->{'bounds'});
+      setcookie("defaultLayers",$xml->{'defaultLayers'});
+      setcookie("bannerImg"    ,$xml->{'bannerImg'});
+      setcookie("bannerHref"   ,$xml->{'bannerImg'});
+      setcookie("bannerTitle"  ,$xml->{'bannerImg'});
       return true;
     }
 }

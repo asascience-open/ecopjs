@@ -24,9 +24,10 @@
     <script>
       var config      = '<?php echo $config?>';
       var globalTitle = '<?php echo $title?>';
-      var brandHTML   = '<?php echo str_replace("'","\\'",$brandHTML)?>';
-      var brandHeight = Number('<?php echo $brandHeight?>');
       var wms         = '<?php echo $wms?>';
+      var bannerImg   = '<?php echo $_COOKIE['bannerImg']?>';
+      var bannerHref  = '<?php echo $_COOKIE['bannerHref']?>';
+      var bannerTitle = '<?php echo str_replace("'","\\'",$_COOKIE['bannerTitle'])?>';
     </script>
 
     <script type="text/javascript">
