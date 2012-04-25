@@ -120,11 +120,12 @@ var stridingStore = new Ext.data.ArrayStore({
 
 var barbLabelStore = new Ext.data.ArrayStore({
   fields : [
-    'name'
+     'name'
+    ,'value'
   ]
   ,data : [
-     ['True']
-    ,['False']
+     ['True',1]
+    ,['False',0]
   ]
 });
 
@@ -141,11 +142,10 @@ var tailMagStore = new Ext.data.ArrayStore({
 var imageQualityStore = new Ext.data.ArrayStore({
   fields : [
     'name'
-   ,'value'
   ]
   ,data : [
-     ['low','Low']
-    ,['high','High']
+     ['Low']
+    ,['High']
   ]
 });
 
@@ -264,8 +264,8 @@ function initMainStore() {
           ,'settingsPalette'      : ''
           ,'settingsBaseStyle'    : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[0]
           ,'settingsColorMap'     : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[1]
-          ,'settingsStriding'     : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[2]
-          ,'settingsBarbLabel'    : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[3]
+          ,'settingsStriding'     : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[3]
+          ,'settingsBarbLabel'    : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[2]
           ,'settingsTailMag'      : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[4]
           ,'settingsMin'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[5]
           ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[6]
@@ -399,6 +399,7 @@ function initMainStore() {
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
           ,'settingsParam'        : ''
           ,'settingsOpacity'      : 100
+          ,'settingsImageQuality' : ''
           ,'settingsImageType'    : 'png'
           ,'settingsPalette'      : ''
           ,'settingsBaseStyle'    : ''
@@ -1797,7 +1798,7 @@ function setLayerSettings(layerName) {
           ,id             : 'imageType.' + id
           ,store          : imageQualityStore
           ,displayField   : 'name'
-          ,valueField     : 'value'
+          ,valueField     : 'name'
           ,value          : mainStore.getAt(idx).get('settingsImageQuality')
           ,editable       : false
           ,triggerAction  : 'all'
@@ -1813,7 +1814,7 @@ function setLayerSettings(layerName) {
               });
             }
             ,select : function(comboBox,rec) {
-              mainStore.getAt(idx).set('settingsImageQuality',rec.get('value'));
+              mainStore.getAt(idx).set('settingsImageQuality',rec.get('name'));
               mainStore.getAt(idx).commit();
               setCustomStyles(mainStore.getAt(idx));
             }
@@ -2026,7 +2027,7 @@ function setLayerSettings(layerName) {
           ,id             : 'barbLabel.' + id
           ,store          : barbLabelStore
           ,displayField   : 'name'
-          ,valueField     : 'name'
+          ,valueField     : 'value'
           ,value          : mainStore.getAt(idx).get('settingsBarbLabel')
           ,editable       : false
           ,triggerAction  : 'all'
