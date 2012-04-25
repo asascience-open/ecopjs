@@ -462,7 +462,7 @@ function initComponents() {
   var introPanel = new Ext.Panel({
      height : 52
     ,border : false
-    ,html   : '<table class="smallFont" width="100%"><tr><td align=center><a target=_blank href="' + bannerHref + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
+    ,html   : '<table class="smallFont" width="100%"><tr><td><a target=_blank href="' + bannerHref + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
   });
 
   var currentsSelModel = new Ext.grid.CheckboxSelectionModel({
