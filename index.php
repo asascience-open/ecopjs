@@ -26,7 +26,7 @@
       var globalTitle = '<?php echo $title?>';
       var wms         = '<?php echo $wms?>';
       var bannerImg   = '<?php echo $_COOKIE['bannerImg']?>';
-      var bannerHref  = '<?php echo $_COOKIE['bannerHref']?>';
+      var bannerURL   = '<?php echo $_COOKIE['bannerURL']?>';
       var bannerTitle = '<?php echo str_replace("\n",'',str_replace("'","\\'",$_COOKIE['bannerTitle']))?>';
     </script>
 

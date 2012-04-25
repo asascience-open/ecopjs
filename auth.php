@@ -34,7 +34,7 @@ function confirmUser($username,$password,$url)
       setcookie("bounds"       ,$xml->{'bounds'});
       setcookie("defaultLayers",$xml->{'defaultLayers'});
       setcookie("bannerImg"    ,$xml->{'bannerImg'});
-      setcookie("bannerHref"   ,$xml->{'bannerHref'});
+      setcookie("bannerURL"    ,$xml->{'bannerURL'});
       setcookie("bannerTitle"  ,$xml->{'bannerTitle'});
       return true;
     }
