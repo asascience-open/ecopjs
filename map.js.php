@@ -1,7 +1,7 @@
 <?php
   session_start();
 
-  $config = getenv('config');
+  $config = getenv('config') ? getenv('config') : 'DEFAULT';
   require_once("config/$config/conf.php");
   require_once("config/$config/getCaps.php");
 
