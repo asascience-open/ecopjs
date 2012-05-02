@@ -733,7 +733,7 @@ function initComponents() {
     ,listeners        : {afterrender : function() {
       this.addListener('bodyresize',function(p,w,h) {
         this.getColumnModel().setConfig([
-           {id : 'status',dataIndex : 'status',renderer : renderLayerStatus,width : (config == 'gliders' ? 42 : 30)}
+           {id : 'status',dataIndex : 'status',renderer : renderLayerStatus,width : 30}
           ,{id : 'legend',dataIndex : 'name'  ,renderer : renderLegend     ,width : w - 4 - 42}
         ]);
       });
@@ -771,13 +771,21 @@ function initComponents() {
         ,title       : globalTitle + ' Manager'
         ,collapsible : true
         ,items       : managerItems
-        ,listeners        : {afterrender : function() {
+        ,listeners   : {afterrender : function() {
           this.addListener('bodyresize',function(p,w,h) {
             if (currentsGridPanel.getStore().getCount() > 10) {
-              currentsGridPanel.setHeight(h - introPanel.getHeight() - windsGridPanel.getHeight() - temperaturesGridPanel.getHeight() - wavesGridPanel.getHeight() - otherGridPanel.getHeight());
+              var targetH = h - introPanel.getHeight() - windsGridPanel.getHeight() - temperaturesGridPanel.getHeight() - wavesGridPanel.getHeight() - otherGridPanel.getHeight();
+              if (targetH < 100) {
+                targetH = 100;
+              }
+              currentsGridPanel.setHeight(targetH);
             }
             else {
-              otherGridPanel.setHeight(h - introPanel.getHeight() - currentsGridPanel.getHeight() - windsGridPanel.getHeight() - temperaturesGridPanel.getHeight() - wavesGridPanel.getHeight());
+              var targetH = h - introPanel.getHeight() - currentsGridPanel.getHeight() - windsGridPanel.getHeight() - temperaturesGridPanel.getHeight() - wavesGridPanel.getHeight();
+              if (targetH < 100) {
+                targetH = 100;
+              }
+              otherGridPanel.setHeight(targetH);
             }
           });
         }}
