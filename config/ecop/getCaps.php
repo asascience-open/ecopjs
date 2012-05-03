@@ -46,12 +46,6 @@
       }
       array_push($layers['waves'],$a);
     }
-    else if (preg_match('/_(TEMP|SST)$/',$a['name'])) {
-      $a['type']  = 'temperature';
-      $a['title'] .= '||'.$a['type'];
-      array_unshift($layerStack,$a);
-      array_push($layers['temperature'],$a);
-    }
     else {
       $a['type']  = 'other';
       $a['title'] .= '||'.$a['type'];

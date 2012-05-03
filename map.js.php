@@ -65,7 +65,6 @@ var legendsStore = new Ext.data.ArrayStore({
 var currentsStore     = new Ext.data.ArrayStore({fields : []});
 var windsStore        = new Ext.data.ArrayStore({fields : []});
 var wavesStore        = new Ext.data.ArrayStore({fields : []});
-var temperaturesStore = new Ext.data.ArrayStore({fields : []});
 var otherStore        = new Ext.data.ArrayStore({fields : []});
 
 var baseStylesStore = new Ext.data.ArrayStore({
@@ -349,41 +348,6 @@ function initMainStore() {
           ,'category'             : 'wavesElevation'
         }));
       }
-      else if (layerType == 'temperature') {
-        if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
-          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = '';
-          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = '';
-        }
-        mainStore.add(new mainStore.recordType({
-           'type'                 : 'temperatures'
-          ,'name'                 : layerConfig.availableLayers[layerType][i].title
-          ,'displayName'          : layerConfig.availableLayers[layerType][i].title
-          ,'info'                 : 'off'
-          ,'status'               : layerConfig.availableLayers[layerType][i].status
-          ,'settings'             : 'off'
-          ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
-          ,'settingsParam'        : ''
-          ,'settingsOpacity'      : 100
-          ,'settingsImageQuality' : ''
-          ,'settingsImageType'    : 'png'
-          ,'settingsPalette'      : ''
-          ,'settingsBaseStyle'    : ''
-          ,'settingsColorMap'     : ''
-          ,'settingsStriding'     : ''
-          ,'settingsBarbLabel'    : ''
-          ,'settingsTailMag'      : ''
-          ,'settingsMin'          : ''
-          ,'settingsMax'          : ''
-          ,'settingsMinMaxBounds' : ''
-          ,'rank'                 : ''
-          ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
-          ,'timestamp'            : ''
-          ,'bbox'                 : layerConfig.availableLayers[layerType][i].bbox
-          ,'queryable'            : 'true'
-          ,'settingsLayers'       : ''
-          ,'category'             : 'temperature'
-        }));
-      }
       else {
         if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
           defaultStyles[layerConfig.availableLayers[layerType][i].title]          = '';
@@ -443,12 +407,6 @@ function initMainStore() {
   mainStore.each(function(rec) {
     if (rec.get('type') == 'waves') {
       wavesStore.add(rec);
-    }
-  });
-
-  mainStore.each(function(rec) {
-    if (rec.get('type') == 'temperatures') {
-      temperaturesStore.add(rec);
     }
   });
 
@@ -616,56 +574,6 @@ function initComponents() {
     ]
   });
 
-  var temperaturesSelModel = new Ext.grid.CheckboxSelectionModel({
-     header    : ''
-    ,checkOnly : true
-    ,listeners : {
-      rowdeselect : function(sm,idx,rec) {
-        map.getLayersByName(rec.get('name'))[0].setVisibility(false);
-      }
-      ,rowselect : function(sm,idx,rec) {
-        map.getLayersByName(rec.get('name'))[0].setVisibility(true);
-      }
-    }
-  });
-  var temperaturesGridPanel = new Ext.grid.GridPanel({
-     id               : 'temperaturesGridPanel'
-    ,height           : Math.min(temperaturesStore.getCount(),5) * 21.1 + 26 + 11 + 25
-    ,title            : 'Water temperatures'
-    ,collapsible      : true
-    ,store            : temperaturesStore
-    ,border           : false
-    ,selModel         : temperaturesSelModel
-    ,columns          : [
-       temperaturesSelModel
-      ,{id : 'status'     ,dataIndex : 'status'     ,renderer : renderLayerButton   ,width : 25}
-      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink ,width : 167}
-      ,{id : 'bbox'       ,dataIndex : 'bbox'       ,renderer : renderLayerCalloutButton    ,width : 20}
-    ]
-    ,hideHeaders      : true
-    ,disableSelection : true
-    ,listeners        : {viewready : function(grid) {
-      layersToSyncBbox['temperatures'] = true;
-      needToInitGridPanel['temperatures'] = true;
-      syncLayersToBbox('temperatures');
-      var sm = grid.getSelectionModel();
-      temperaturesStore.each(function(rec) {
-        if (rec.get('status') == 'on') {
-          sm.selectRecords([rec],true);
-        }
-      });
-    }}
-    ,tbar             : [
-      {
-         text    : 'Turn all temperatures off'
-        ,icon    : 'img/delete.png'
-        ,handler : function() {
-          temperaturesSelModel.clearSelections();
-        }
-      }
-    ]
-  });
-
   var otherSelModel = new Ext.grid.CheckboxSelectionModel({
      header    : ''
     ,checkOnly : true
@@ -756,7 +664,6 @@ function initComponents() {
     ,currentsGridPanel
     ,windsGridPanel
     ,wavesGridPanel
-    ,temperaturesGridPanel
     ,otherGridPanel
   ];
 
@@ -774,14 +681,14 @@ function initComponents() {
         ,listeners   : {afterrender : function() {
           this.addListener('bodyresize',function(p,w,h) {
             if (currentsGridPanel.getStore().getCount() > 10) {
-              var targetH = h - introPanel.getHeight() - windsGridPanel.getHeight() - temperaturesGridPanel.getHeight() - wavesGridPanel.getHeight() - otherGridPanel.getHeight();
+              var targetH = h - introPanel.getHeight() - windsGridPanel.getHeight() - wavesGridPanel.getHeight() - otherGridPanel.getHeight();
               if (targetH < 100) {
                 targetH = 100;
               }
               currentsGridPanel.setHeight(targetH);
             }
             else {
-              var targetH = h - introPanel.getHeight() - currentsGridPanel.getHeight() - windsGridPanel.getHeight() - temperaturesGridPanel.getHeight() - wavesGridPanel.getHeight();
+              var targetH = h - introPanel.getHeight() - currentsGridPanel.getHeight() - windsGridPanel.getHeight() - wavesGridPanel.getHeight();
               if (targetH < 100) {
                 targetH = 100;
               }
