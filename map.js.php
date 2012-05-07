@@ -623,11 +623,14 @@ function initComponents() {
       ,id    : 'currentsFieldSet'
       ,items : currentsGridPanel
       ,checkboxToggle : true
-      ,checked        : true
+      ,collapsed      : currentsStore.getCount() == 0
+      ,hidden         : currentsStore.getCount() == 0
       ,listeners      : {
         collapse : function() {
-          currentsGridPanel.getSelectionModel().clearSelections();
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          if (currentsGridPanel.getEl()) {
+            currentsGridPanel.getSelectionModel().clearSelections();
+            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          }
         }
         ,expand : function() {
           Ext.getCmp('managerPanel').fireEvent('bodyresize');
@@ -639,11 +642,14 @@ function initComponents() {
       ,id    : 'windsFieldSet'
       ,items : windsGridPanel
       ,checkboxToggle : true
-      ,checked        : true
+      ,collapsed      : windsStore.getCount() == 0
+      ,hidden         : windsStore.getCount() == 0
       ,listeners      : {
         collapse : function() {
-          windsGridPanel.getSelectionModel().clearSelections();
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          if (windsGridPanel.getEl()) {
+            windsGridPanel.getSelectionModel().clearSelections();
+            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          }
         }
         ,expand : function() {
           Ext.getCmp('managerPanel').fireEvent('bodyresize');
@@ -655,11 +661,14 @@ function initComponents() {
       ,id    : 'wavesFieldSet'
       ,items : wavesGridPanel
       ,checkboxToggle : true
-      ,checked        : true
+      ,collapsed      : wavesStore.getCount() == 0
+      ,hidden         : wavesStore.getCount() == 0
       ,listeners      : {
         collapse : function() {
-          wavesGridPanel.getSelectionModel().clearSelections();
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          if (wavesGridPanel.getEl()) {
+            wavesGridPanel.getSelectionModel().clearSelections();
+            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          }
         }
         ,expand : function() {
           Ext.getCmp('managerPanel').fireEvent('bodyresize');
@@ -671,11 +680,14 @@ function initComponents() {
       ,id    : 'otherFieldSet'
       ,items : otherGridPanel
       ,checkboxToggle : true
-      ,checked        : true
+      ,collapsed      : otherStore.getCount() == 0
+      ,hidden         : otherStore.getCount() == 0
       ,listeners      : {
         collapse : function() {
-          otherGridPanel.getSelectionModel().clearSelections();
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          if (otherGridPanel.getEl()) {
+            otherGridPanel.getSelectionModel().clearSelections();
+            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+          }
         }
         ,expand : function() {
           Ext.getCmp('managerPanel').fireEvent('bodyresize');
