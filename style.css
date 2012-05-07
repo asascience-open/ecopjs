@@ -86,9 +86,6 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   background-image : url('img/blank.png');
 }
 
-#currentsGridPanel {
-  border-top: 1px solid #99BBE8;
-}
 #currentsGridPanel .x-grid3-row {
   border-color   : #ffffff;
 }
@@ -105,9 +102,6 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   background-image : url('img/blank.png');
 }
 
-#windsGridPanel {
-  border-top: 1px solid #99BBE8;
-}
 #windsGridPanel .x-grid3-row {
   border-color   : #ffffff;
 }
@@ -124,9 +118,6 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   background-image : url('img/blank.png');
 }
 
-#wavesGridPanel {
-  border-top: 1px solid #99BBE8;
-}
 #wavesGridPanel .x-grid3-row {
   border-color   : #ffffff;
 }
@@ -143,9 +134,6 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   background-image : url('img/blank.png');
 }
 
-#otherGridPanel {
-  border-top: 1px solid #99BBE8;
-}
 #otherGridPanel .x-grid3-row {
   border-color   : #ffffff;
 }

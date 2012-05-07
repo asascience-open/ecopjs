@@ -419,7 +419,7 @@ function initMainStore() {
 
 function initComponents() {
   var introPanel = new Ext.Panel({
-     height : 52
+     height : 60
     ,border : false
     ,html   : '<table class="smallFont" width="100%"><tr><td><a target=_blank href="' + bannerURL + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
   });
@@ -439,19 +439,17 @@ function initComponents() {
   var currentsGridPanel = new Ext.grid.GridPanel({
      id               : 'currentsGridPanel'
     ,height           : Math.min(currentsStore.getCount(),5) * 21.1 + 26 + 11 + 25
-    ,title            : 'Currents'
-    ,collapsible      : true
     ,store            : currentsStore
-    ,border           : false
     ,selModel         : currentsSelModel
     ,columns          : [
        currentsSelModel
       ,{id : 'status'     ,dataIndex : 'status'     ,renderer : renderLayerButton   ,width : 25}
-      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink ,width : 167}
+      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink}
       ,{id : 'bbox'       ,dataIndex : 'bbox'       ,renderer : renderLayerCalloutButton    ,width : 20}
     ]
     ,hideHeaders      : true
     ,disableSelection : true
+    ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['currents'] = true;
       needToInitGridPanel['currents'] = true;
@@ -463,15 +461,6 @@ function initComponents() {
         }
       });
     }}
-    ,tbar             : [
-      {
-         text    : 'Turn all currents off'
-        ,icon    : 'img/delete.png'
-        ,handler : function() {
-          currentsSelModel.clearSelections();
-        }
-      }
-    ]
   });
 
   var windsSelModel = new Ext.grid.CheckboxSelectionModel({
@@ -489,10 +478,7 @@ function initComponents() {
   var windsGridPanel = new Ext.grid.GridPanel({
      id               : 'windsGridPanel'
     ,height           : Math.min(windsStore.getCount(),5) * 21.1 + 26 + 11 + 25
-    ,title            : 'Winds'
-    ,collapsible      : true
     ,store            : windsStore
-    ,border           : false
     ,selModel         : windsSelModel
     ,columns          : [
        windsSelModel
@@ -502,6 +488,7 @@ function initComponents() {
     ]
     ,hideHeaders      : true
     ,disableSelection : true
+    ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['winds'] = true;
       needToInitGridPanel['winds'] = true;
@@ -513,15 +500,6 @@ function initComponents() {
         }
       });
     }}
-    ,tbar             : [
-      {
-         text    : 'Turn all winds off'
-        ,icon    : 'img/delete.png'
-        ,handler : function() {
-          windsSelModel.clearSelections();
-        }
-      }
-    ]
   });
 
   var wavesSelModel = new Ext.grid.CheckboxSelectionModel({
@@ -539,10 +517,7 @@ function initComponents() {
   var wavesGridPanel = new Ext.grid.GridPanel({
      id               : 'wavesGridPanel'
     ,height           : Math.min(wavesStore.getCount(),5) * 21.1 + 26 + 11 + 25
-    ,title            : 'Waves'
-    ,collapsible      : true
     ,store            : wavesStore
-    ,border           : false
     ,selModel         : wavesSelModel
     ,columns          : [
        wavesSelModel
@@ -552,6 +527,7 @@ function initComponents() {
     ]
     ,hideHeaders      : true
     ,disableSelection : true
+    ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['waves'] = true;
       needToInitGridPanel['waves'] = true;
@@ -563,15 +539,6 @@ function initComponents() {
         }
       });
     }}
-    ,tbar             : [
-      {
-         text    : 'Turn all waves off'
-        ,icon    : 'img/delete.png'
-        ,handler : function() {
-          wavesSelModel.clearSelections();
-        }
-      }
-    ]
   });
 
   var otherSelModel = new Ext.grid.CheckboxSelectionModel({
@@ -589,10 +556,7 @@ function initComponents() {
   var otherGridPanel = new Ext.grid.GridPanel({
      id               : 'otherGridPanel'
     ,height           : Math.min(otherStore.getCount(),5) * 21.1 + 26 + 11 + 25
-    ,title            : 'Other'
-    ,collapsible      : true
     ,store            : otherStore
-    ,border           : false
     ,selModel         : otherSelModel
     ,columns          : [
        otherSelModel
@@ -602,6 +566,7 @@ function initComponents() {
     ]
     ,hideHeaders      : true
     ,disableSelection : true
+    ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['other'] = true;
       needToInitGridPanel['other'] = true;
@@ -613,15 +578,6 @@ function initComponents() {
         }
       });
     }}
-    ,tbar             : [
-      {
-         text    : 'Turn all other off'
-        ,icon    : 'img/delete.png'
-        ,handler : function() {
-          otherSelModel.clearSelections();
-        }
-      }
-    ]
   });
 
   var legendsGridPanel = new Ext.grid.GridPanel({
@@ -649,8 +605,9 @@ function initComponents() {
     ,tbar : {items : [
        '->'
       ,{
-         icon    : 'img/door_out.png'
+         icon    : 'img/door_out32.png'
         ,text    : 'Logout'
+        ,scale   : 'large'
         ,tooltip : 'Logout of this map session'
         ,handler : function() {
           document.location = 'logout.php';
@@ -661,10 +618,70 @@ function initComponents() {
 
   var managerItems = [
      introPanel
-    ,currentsGridPanel
-    ,windsGridPanel
-    ,wavesGridPanel
-    ,otherGridPanel
+    ,new Ext.form.FieldSet({
+       title : '&nbsp;Currents&nbsp;'
+      ,id    : 'currentsFieldSet'
+      ,items : currentsGridPanel
+      ,checkboxToggle : true
+      ,checked        : true
+      ,listeners      : {
+        collapse : function() {
+          currentsGridPanel.getSelectionModel().clearSelections();
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+        ,expand : function() {
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+      }
+    })
+    ,new Ext.form.FieldSet({
+       title : '&nbsp;Winds&nbsp;'
+      ,id    : 'windsFieldSet'
+      ,items : windsGridPanel
+      ,checkboxToggle : true
+      ,checked        : true
+      ,listeners      : {
+        collapse : function() {
+          windsGridPanel.getSelectionModel().clearSelections();
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+        ,expand : function() {
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+      }
+    })
+    ,new Ext.form.FieldSet({
+       title : '&nbsp;Waves&nbsp;'
+      ,id    : 'wavesFieldSet'
+      ,items : wavesGridPanel
+      ,checkboxToggle : true
+      ,checked        : true
+      ,listeners      : {
+        collapse : function() {
+          wavesGridPanel.getSelectionModel().clearSelections();
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+        ,expand : function() {
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+      }
+    })
+    ,new Ext.form.FieldSet({
+       title : '&nbsp;Other&nbsp;'
+      ,id    : 'otherFieldSet'
+      ,items : otherGridPanel
+      ,checkboxToggle : true
+      ,checked        : true
+      ,listeners      : {
+        collapse : function() {
+          otherGridPanel.getSelectionModel().clearSelections();
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+        ,expand : function() {
+          Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        }
+      }
+    })
   ];
 
   new Ext.Viewport({
@@ -674,34 +691,50 @@ function initComponents() {
       new Ext.Panel({
          region      : 'west'
         ,id          : 'managerPanel'
-        ,width       : 255
+        ,width       : 270
         ,title       : globalTitle + ' Manager'
         ,collapsible : true
+        ,bodyStyle   : 'padding:5px 5px 0'
         ,items       : managerItems
         ,listeners   : {afterrender : function() {
-          this.addListener('bodyresize',function(p,w,h) {
-            if (currentsGridPanel.getStore().getCount() > 10) {
-              var targetH = h - introPanel.getHeight() - windsGridPanel.getHeight() - wavesGridPanel.getHeight() - otherGridPanel.getHeight();
-              if (targetH < 100) {
-                targetH = 100;
-              }
-              currentsGridPanel.setHeight(targetH);
+          this.addListener('bodyresize',function() {
+            var targetH = this.getHeight() - 53 - introPanel.getHeight() - 195;
+            var ratio = 0;
+            if (!Ext.getCmp('currentsFieldSet').collapsed && currentsStore.getCount() > 0) {
+              ratio++;
             }
-            else {
-              var targetH = h - introPanel.getHeight() - currentsGridPanel.getHeight() - windsGridPanel.getHeight() - wavesGridPanel.getHeight();
-              if (targetH < 100) {
-                targetH = 100;
-              }
-              otherGridPanel.setHeight(targetH);
+            if (!Ext.getCmp('windsFieldSet').collapsed && windsStore.getCount() > 0) {
+              ratio++;
             }
+            if (!Ext.getCmp('wavesFieldSet').collapsed && wavesStore.getCount() > 0) {
+              ratio++;
+            }
+            if (!Ext.getCmp('otherFieldSet').collapsed && otherStore.getCount() > 0) {
+              ratio++;
+            }
+            currentsGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
+            windsGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
+            wavesGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
+            otherGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
           });
         }}
         ,tbar      : [
-           {
-             icon : 'img/blank.png'
-           }
+          {
+             text  : '<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Remove<br>all layers</td></tr></table>'
+            ,scale : 'large'
+            ,icon  : 'img/delete32.png'
+            ,handler : function() {
+              currentsSelModel.clearSelections();
+              windsSelModel.clearSelections();
+              wavesSelModel.clearSelections();
+              otherSelModel.clearSelections();
+            }
+          }
           ,'->'
-          ,'Only list & map layers in current extents?'
+          ,'<img src="img/lock32.png">'
+          ,'<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Lock layers to<br>current extents?</tr></td></table>'
+          ,' '
+          ,' '
           ,' '
           ,new Ext.form.Checkbox({
              checked   : false
