@@ -710,24 +710,40 @@ function initComponents() {
         ,items       : managerItems
         ,listeners   : {afterrender : function() {
           this.addListener('bodyresize',function() {
-            var targetH = this.getHeight() - 53 - introPanel.getHeight() - 195;
-            var ratio = 0;
-            if (!Ext.getCmp('currentsFieldSet').collapsed && currentsStore.getCount() > 0) {
-              ratio++;
+            var h = this.getHeight() - 53 - introPanel.getHeight() - 195;
+            var c = {
+               'currents' : currentsStore.getCount() * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1)
+              ,'winds'    : windsStore.getCount() * (Ext.getCmp('windsFieldSet').collapsed ? 0 : 1)
+              ,'waves'    : wavesStore.getCount() * (Ext.getCmp('wavesFieldSet').collapsed ? 0 : 1)
+              ,'other'    : otherStore.getCount() * (Ext.getCmp('otherFieldSet').collapsed ? 0 : 1)
+            };
+            var hits = 0;
+            for (var i in c) {
+              hits += c[i];
             }
-            if (!Ext.getCmp('windsFieldSet').collapsed && windsStore.getCount() > 0) {
-              ratio++;
+            if (hits == 0) {
+              hits = 10000000000000;
             }
-            if (!Ext.getCmp('wavesFieldSet').collapsed && wavesStore.getCount() > 0) {
-              ratio++;
+            var targetH = {
+               'currents' : h * c['currents'] * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1) / hits
+              ,'winds'    : h * c['winds'] * (Ext.getCmp('windsFieldSet').collapsed ? 0 : 1) / hits
+              ,'waves'    : h * c['waves'] * (Ext.getCmp('wavesFieldSet').collapsed ? 0 : 1) / hits
+              ,'other'    : h * c['other'] * (Ext.getCmp('otherFieldSet').collapsed ? 0 : 1) / hits
+            };
+            var offset = 0;
+            hits = 0;
+            for (var i in targetH) {
+              if (targetH[i] > 0) {
+                hits++;
+                if (targetH[i] < 80) {
+                  offset += 80 - targetH[i];
+                  targetH[i] = 80;
+                }
+              }
             }
-            if (!Ext.getCmp('otherFieldSet').collapsed && otherStore.getCount() > 0) {
-              ratio++;
+            for (var i in targetH) {
+              Ext.getCmp(i + 'GridPanel').setHeight(targetH[i] - offset / hits);
             }
-            currentsGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
-            windsGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
-            wavesGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
-            otherGridPanel.setHeight(targetH / ratio + (4 - ratio) * 4);
           });
         }}
         ,tbar      : [
@@ -744,7 +760,7 @@ function initComponents() {
           }
           ,'->'
           ,'<img src="img/lock32.png">'
-          ,'<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Lock layers to<br>current extents?</tr></td></table>'
+          ,'<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Lock layers to<br>map extents?</tr></td></table>'
           ,' '
           ,' '
           ,' '
