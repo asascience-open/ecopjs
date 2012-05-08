@@ -419,7 +419,7 @@ function initMainStore() {
 
 function initComponents() {
   var introPanel = new Ext.Panel({
-     height : 54
+     height : 55
     ,border : false
     ,html   : '<table class="smallFont" width="100%"><tr><td><a target=_blank href="' + bannerURL + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
   });
@@ -607,7 +607,6 @@ function initComponents() {
       ,{
          icon    : 'img/door_out.png'
         ,text    : 'Logout'
-        // ,scale   : 'large'
         ,tooltip : 'Logout of this map session'
         ,handler : function() {
           document.location = 'logout.php';
@@ -624,9 +623,8 @@ function initComponents() {
       ,id        : 'categoryPanel'
       ,tbar      : [
         {
-           text  : '<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Remove<br>all layers</td></tr></table>'
-          ,scale : 'large'
-          ,icon  : 'img/delete32.png'
+           text  : 'Remove all layers'
+          ,icon  : 'img/delete.png'
           ,handler : function() {
             currentsSelModel.clearSelections();
             windsSelModel.clearSelections();
@@ -635,10 +633,8 @@ function initComponents() {
           }
         }
         ,'->'
-        ,'<img src="img/lock32.png">'
-        ,'<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Lock layers to<br>map extents?</tr></td></table>'
-        ,' '
-        ,' '
+        ,'<img src="img/lock.png">'
+        ,'Lock layers to map?'
         ,' '
         ,new Ext.form.Checkbox({
            checked   : false
@@ -742,7 +738,7 @@ function initComponents() {
         ,items       : managerItems
         ,listeners   : {afterrender : function() {
           this.addListener('bodyresize',function() {
-            var h = this.getHeight() - 53 - introPanel.getHeight() - 205;
+            var h = this.getHeight() - 53 - introPanel.getHeight() - 190;
             var c = {
                'currents' : currentsStore.getCount() * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1)
               ,'winds'    : windsStore.getCount() * (Ext.getCmp('windsFieldSet').collapsed ? 0 : 1)
