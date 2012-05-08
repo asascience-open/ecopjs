@@ -419,7 +419,7 @@ function initMainStore() {
 
 function initComponents() {
   var introPanel = new Ext.Panel({
-     height : 60
+     height : 54
     ,border : false
     ,html   : '<table class="smallFont" width="100%"><tr><td><a target=_blank href="' + bannerURL + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
   });
@@ -605,9 +605,9 @@ function initComponents() {
     ,tbar : {items : [
        '->'
       ,{
-         icon    : 'img/door_out32.png'
+         icon    : 'img/door_out.png'
         ,text    : 'Logout'
-        ,scale   : 'large'
+        // ,scale   : 'large'
         ,tooltip : 'Logout of this map session'
         ,handler : function() {
           document.location = 'logout.php';
@@ -618,82 +618,115 @@ function initComponents() {
 
   var managerItems = [
      introPanel
-    ,new Ext.form.FieldSet({
-       title : '&nbsp;Currents&nbsp;'
-      ,id    : 'currentsFieldSet'
-      ,items : currentsGridPanel
-      ,checkboxToggle : true
-      ,collapsed      : currentsStore.getCount() == 0
-      ,hidden         : currentsStore.getCount() == 0
-      ,listeners      : {
-        collapse : function() {
-          if (currentsGridPanel.getEl()) {
-            currentsGridPanel.getSelectionModel().clearSelections();
-            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+    ,{
+       border    : false
+      ,bodyStyle : 'padding:5px 5px 0'
+      ,id        : 'categoryPanel'
+      ,tbar      : [
+        {
+           text  : '<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Remove<br>all layers</td></tr></table>'
+          ,scale : 'large'
+          ,icon  : 'img/delete32.png'
+          ,handler : function() {
+            currentsSelModel.clearSelections();
+            windsSelModel.clearSelections();
+            wavesSelModel.clearSelections();
+            otherSelModel.clearSelections();
           }
         }
-        ,expand : function() {
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
-        }
-      }
-    })
-    ,new Ext.form.FieldSet({
-       title : '&nbsp;Winds&nbsp;'
-      ,id    : 'windsFieldSet'
-      ,items : windsGridPanel
-      ,checkboxToggle : true
-      ,collapsed      : windsStore.getCount() == 0
-      ,hidden         : windsStore.getCount() == 0
-      ,listeners      : {
-        collapse : function() {
-          if (windsGridPanel.getEl()) {
-            windsGridPanel.getSelectionModel().clearSelections();
-            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        ,'->'
+        ,'<img src="img/lock32.png">'
+        ,'<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Lock layers to<br>map extents?</tr></td></table>'
+        ,' '
+        ,' '
+        ,' '
+        ,new Ext.form.Checkbox({
+           checked   : false
+          ,id        : 'restrictLayersToBbox'
+          ,listeners : {check : function() {
+            syncLayersToBbox();
+          }}
+        })
+      ]
+      ,items  : [
+        new Ext.form.FieldSet({
+           title : '&nbsp;Currents&nbsp;'
+          ,id    : 'currentsFieldSet'
+          ,items : currentsGridPanel
+          ,checkboxToggle : true
+          ,collapsed      : currentsStore.getCount() == 0
+          ,hidden         : currentsStore.getCount() == 0
+          ,listeners      : {
+            collapse : function() {
+              if (currentsGridPanel.getEl()) {
+                currentsGridPanel.getSelectionModel().clearSelections();
+                Ext.getCmp('managerPanel').fireEvent('bodyresize');
+              }
+            }
+            ,expand : function() {
+              Ext.getCmp('managerPanel').fireEvent('bodyresize');
+            }
           }
-        }
-        ,expand : function() {
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
-        }
-      }
-    })
-    ,new Ext.form.FieldSet({
-       title : '&nbsp;Waves&nbsp;'
-      ,id    : 'wavesFieldSet'
-      ,items : wavesGridPanel
-      ,checkboxToggle : true
-      ,collapsed      : wavesStore.getCount() == 0
-      ,hidden         : wavesStore.getCount() == 0
-      ,listeners      : {
-        collapse : function() {
-          if (wavesGridPanel.getEl()) {
-            wavesGridPanel.getSelectionModel().clearSelections();
-            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        })
+        ,new Ext.form.FieldSet({
+           title : '&nbsp;Winds&nbsp;'
+          ,id    : 'windsFieldSet'
+          ,items : windsGridPanel
+          ,checkboxToggle : true
+          ,collapsed      : windsStore.getCount() == 0
+          ,hidden         : windsStore.getCount() == 0
+          ,listeners      : {
+            collapse : function() {
+              if (windsGridPanel.getEl()) {
+                windsGridPanel.getSelectionModel().clearSelections();
+                Ext.getCmp('managerPanel').fireEvent('bodyresize');
+              }
+            }
+            ,expand : function() {
+              Ext.getCmp('managerPanel').fireEvent('bodyresize');
+            }
           }
-        }
-        ,expand : function() {
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
-        }
-      }
-    })
-    ,new Ext.form.FieldSet({
-       title : '&nbsp;Other&nbsp;'
-      ,id    : 'otherFieldSet'
-      ,items : otherGridPanel
-      ,checkboxToggle : true
-      ,collapsed      : otherStore.getCount() == 0
-      ,hidden         : otherStore.getCount() == 0
-      ,listeners      : {
-        collapse : function() {
-          if (otherGridPanel.getEl()) {
-            otherGridPanel.getSelectionModel().clearSelections();
-            Ext.getCmp('managerPanel').fireEvent('bodyresize');
+        })
+        ,new Ext.form.FieldSet({
+           title : '&nbsp;Waves&nbsp;'
+          ,id    : 'wavesFieldSet'
+          ,items : wavesGridPanel
+          ,checkboxToggle : true
+          ,collapsed      : wavesStore.getCount() == 0
+          ,hidden         : wavesStore.getCount() == 0
+          ,listeners      : {
+            collapse : function() {
+              if (wavesGridPanel.getEl()) {
+                wavesGridPanel.getSelectionModel().clearSelections();
+                Ext.getCmp('managerPanel').fireEvent('bodyresize');
+              }
+            }
+            ,expand : function() {
+              Ext.getCmp('managerPanel').fireEvent('bodyresize');
+            }
           }
-        }
-        ,expand : function() {
-          Ext.getCmp('managerPanel').fireEvent('bodyresize');
-        }
-      }
-    })
+        })
+        ,new Ext.form.FieldSet({
+           title : '&nbsp;Other&nbsp;'
+          ,id    : 'otherFieldSet'
+          ,items : otherGridPanel
+          ,checkboxToggle : true
+          ,collapsed      : otherStore.getCount() == 0
+          ,hidden         : otherStore.getCount() == 0
+          ,listeners      : {
+            collapse : function() {
+              if (otherGridPanel.getEl()) {
+                otherGridPanel.getSelectionModel().clearSelections();
+                Ext.getCmp('managerPanel').fireEvent('bodyresize');
+              }
+            }
+            ,expand : function() {
+              Ext.getCmp('managerPanel').fireEvent('bodyresize');
+            }
+          }
+        })
+      ]
+    }
   ];
 
   new Ext.Viewport({
@@ -706,11 +739,10 @@ function initComponents() {
         ,width       : 270
         ,title       : globalTitle + ' Manager'
         ,collapsible : true
-        ,bodyStyle   : 'padding:5px 5px 0'
         ,items       : managerItems
         ,listeners   : {afterrender : function() {
           this.addListener('bodyresize',function() {
-            var h = this.getHeight() - 53 - introPanel.getHeight() - 195;
+            var h = this.getHeight() - 53 - introPanel.getHeight() - 205;
             var c = {
                'currents' : currentsStore.getCount() * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1)
               ,'winds'    : windsStore.getCount() * (Ext.getCmp('windsFieldSet').collapsed ? 0 : 1)
@@ -746,32 +778,6 @@ function initComponents() {
             }
           });
         }}
-        ,tbar      : [
-          {
-             text  : '<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Remove<br>all layers</td></tr></table>'
-            ,scale : 'large'
-            ,icon  : 'img/delete32.png'
-            ,handler : function() {
-              currentsSelModel.clearSelections();
-              windsSelModel.clearSelections();
-              wavesSelModel.clearSelections();
-              otherSelModel.clearSelections();
-            }
-          }
-          ,'->'
-          ,'<img src="img/lock32.png">'
-          ,'<table><tr><td style="font:11px arial,tahoma,verdana,helvetica;text-align:center">Lock layers to<br>map extents?</tr></td></table>'
-          ,' '
-          ,' '
-          ,' '
-          ,new Ext.form.Checkbox({
-             checked   : false
-            ,id        : 'restrictLayersToBbox'
-            ,listeners : {check : function() {
-              syncLayersToBbox();
-            }}
-          })
-        ]
       })
       ,new Ext.Panel({
          region    : 'center'

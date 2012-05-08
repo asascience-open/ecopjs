@@ -458,3 +458,7 @@ div.olControlMousePosition {
 .mask td {
   font : 11px/13px tahoma,helvetica,sans-serif;
 }
+
+#categoryPanel {
+  border-top: 1px solid #99BBE8;
+}
