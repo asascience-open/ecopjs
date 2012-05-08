@@ -46,7 +46,7 @@
       }
       array_push($layers['waves'],$a);
     }
-    else if (false) {
+    else {
       $a['type']  = 'other';
       $a['title'] .= '||'.$a['type'];
       array_unshift($layerStack,$a);
