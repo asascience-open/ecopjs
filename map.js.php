@@ -623,7 +623,7 @@ function initComponents() {
       ,id        : 'categoryPanel'
       ,tbar      : [
         {
-           text  : 'Remove all layers'
+           text  : 'Turn off all layers'
           ,icon  : 'img/delete.png'
           ,handler : function() {
             currentsSelModel.clearSelections();
@@ -634,7 +634,7 @@ function initComponents() {
         }
         ,'->'
         ,'<img src="img/filter.png">'
-        ,'Filter layers by zoom?'
+        ,'Filter layers by zoom'
         ,' '
         ,new Ext.form.Checkbox({
            checked   : false
