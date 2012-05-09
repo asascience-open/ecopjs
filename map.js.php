@@ -634,7 +634,7 @@ function initComponents() {
         }
         ,'->'
         ,'<img src="img/lock.png">'
-        ,'Lock layers to map?'
+        ,'Filter layers by zoom?'
         ,' '
         ,new Ext.form.Checkbox({
            checked   : false
