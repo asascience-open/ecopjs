@@ -633,7 +633,7 @@ function initComponents() {
           }
         }
         ,'->'
-        ,'<img src="img/lock.png">'
+        ,'<img src="img/filter.png">'
         ,'Filter layers by zoom?'
         ,' '
         ,new Ext.form.Checkbox({
