@@ -1560,7 +1560,7 @@ function makeChart(type,a) {
         // get the data
         chartData.push({
            data   : []
-          ,label  : title.split('||')[0] + ' : ' + v + ' (' + toEnglish({typ : 'title',src : obs.u[v],val : obs.u[v]}) + ')'
+          ,label  : title.split('||')[0] + ' : ' + v + ' (' + obs.u[v] + ')'
           ,yaxis  : yaxis
           ,lines  : {show : true}
           ,nowIdx : obs.d[v].length > 1 ? obs.nowIdx : ''
@@ -1568,7 +1568,7 @@ function makeChart(type,a) {
           ,type   : type
         });
         for (var i = 0; i < obs.d[v].length; i++) {
-          chartData[chartData.length-1].data.push([obs.t[i],toEnglish({typ : 'obs',src : obs.u[v],val : obs.d[v][i]})]);
+          chartData[chartData.length-1].data.push([obs.t[i],obs.d[v][i]]);
         }
         if (obs.d[v].length == 1) {
           chartData[chartData.length - 1].points = {show : true};
@@ -1588,26 +1588,6 @@ function makeChart(type,a) {
     }
     Ext.getCmp('timeseriesPanel').fireEvent('resize',Ext.getCmp('timeseriesPanel'));
   }
-}
-
-function toEnglish(v) {
-  if (String(v.src).indexOf('Celcius') >= 0) {
-    if (v.typ == 'title') {
-      return v.val.replace('Celcius','Fahrenheit');
-    }
-    else {
-      return v.val * 9/5 + 32;
-    }
-  }
-  else if (String(v.src).indexOf('Meters') >= 0) {
-    if (v.typ == 'title') {
-      return v.val.replace('Meters','Feet');
-    }
-    else {
-      return v.val * 3.281;
-    }
-  }
-  return v.val;
 }
 
 function showToolTip(x,y,contents) {
