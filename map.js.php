@@ -852,37 +852,7 @@ function initComponents() {
                 ,columns   : 2
                 ,title     : 'Map options'
                 ,items     : [
-                  {text : 'Bathymetry',icon : 'img/map16.png',menu : {items : [
-                    {
-                       text         : 'Hide bathymetry contours'
-                      ,checked      : typeof defaultLayers['Bathymetry contours'] == 'undefined'
-                      ,group        : 'bathy'
-                      ,handler      : function() {
-                        var lyr = map.getLayersByName('Bathymetry contours')[0];
-                        if (!lyr) {
-                          Ext.Msg.alert('Bathymetry contours',"We're sorry, but this layer is not available.");
-                        }
-                        else {
-                          lyr.setVisibility(false);
-                        }
-                      }
-                    }
-                    ,{
-                       text         : 'Show bathymetry contours'
-                      ,checked      : typeof defaultLayers['Bathymetry contours'] != 'undefined'
-                      ,group        : 'bathy'
-                      ,handler      : function() {
-                        var lyr = map.getLayersByName('Bathymetry contours')[0];
-                        if (!lyr) {
-                          Ext.Msg.alert('Bathymetry contours',"We're sorry, but this layer is not available.");
-                        }
-                        else {
-                          lyr.setVisibility(true);
-                        }
-                      }
-                    }
-                  ]}}
-                  ,{text : 'Basemap',icon : 'img/world16.png',menu : {items : [
+                  {text : 'Basemap',icon : 'img/world16.png',menu : {items : [
                     {
                        text         : 'Show ESRI Ocean basemap'
                       ,checked      : defaultBasemap == 'ESRI Ocean'
