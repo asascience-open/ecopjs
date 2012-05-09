@@ -1191,6 +1191,7 @@ function syncLayersToBbox(l) {
       sm.resumeEvents();
     }
   }
+  Ext.getCmp('managerPanel').fireEvent('bodyresize');
 }
 
 function initMap() {
