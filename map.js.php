@@ -1108,12 +1108,6 @@ function renderLegend(val,metadata,rec) {
       img.src = 'getLegend.php?' + mainStore.getAt(idx).get('legend');
       legendImages[rec.get('name')] = img;
     }
-
-    var customize = '<table><tr><td width=20><a id="settings.' + rec.get('name') + '" title="Customize this layer\'s appearance" href="javascript:setLayerSettings(\'' + rec.get('name') + '\',true)"><img width=16 height=16 src="img/setting_tools.png"></a></td><td><a title="Customize this layer\'s appearance" href="javascript:setLayerSettings(\'' + rec.get('name') + '\',true)">Customize&nbsp;this&nbsp;layer</a></td></tr></table>';
-    if (map.getLayersByName(rec.get('name'))[0].featureFactor) {
-      customize = '';
-    }
-
     a.push('<img src="getLegend.php?' + mainStore.getAt(idx).get('legend') + '">');
   }
   return a.join('<br/>');
@@ -1360,7 +1354,7 @@ function getTimestampCallback(rec,lyr,r) {
       ,HEIGHT        : map.size.h
       ,TIME          : 'Abstract'
     };
-    rec.set('timestamp','<a href="javascript:showAbstract(\'' + rec.get('displayName').split('||')[0] + '\',\'' + lyr.getFullRequestString(paramNew) + '\')">There was a problem<br/>drawing this layer.</a>');
+    rec.set('timestamp','<a href="javascript:showAbstract(\'' + rec.get('displayName').split('||')[0] + '\',\'' + lyr.getFullRequestString(paramNew) + '\')"><img src="img/layerProblem.png"></a>');
   }
   else if (r.responseText == 'invalidBbox') {
     rec.set('timestamp','<span>This layer\'s domain<br/>is out of bounds.<span>');
@@ -2158,7 +2152,7 @@ function showAbstract(title,u) {
         Ext.Msg.buttonText.ok = 'Close';
         Ext.Msg.alert(
            title
-          ,"You may have reached this error if your requested map time does not fall within this model's valid time range.  The most recent forecast available is"
+          ,"The most recent data available for this layer is "
             + ' <a href="#" onclick="dNow = new Date(' + json.endTime + ' * 1000);setMapTime();Ext.Msg.hide()">' + shortDateString(new Date(json.endTime * 1000)) + '</a>'
             + '.'
         );
