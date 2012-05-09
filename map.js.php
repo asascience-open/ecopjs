@@ -1202,15 +1202,28 @@ function initMap() {
     })}
   );
 
-  esriOcean = new OpenLayers.Layer.XYZ(
-     'ESRI Ocean'
-    ,'http://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/${z}/${y}/${x}.jpg'
-    ,{sphericalMercator: true,visibility : defaultBasemap == 'ESRI Ocean',isBaseLayer : true,opacity : 1,wrapDateLine : true,attribution : "GEBCO, NOAA, National Geographic, AND data by <a href='http://www.arcgis.com/home/item.html?id=6348e67824504fc9a62976434bf0d8d5'>ESRI</a>"} // ,serverResolutions : basemapResolutions,resolutions : basemapResolutions.slice(1)}
-  );
-
   map = new OpenLayers.Map('map',{
     layers            : [
-       esriOcean
+       new OpenLayers.Layer.XYZ(
+         'ESRI Ocean'
+        ,'http://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/${z}/${y}/${x}.jpg'
+        ,{
+           sphericalMercator : true
+          ,visibility        : defaultBasemap == 'ESRI Ocean'
+          ,isBaseLayer       : true
+          ,opacity           : 1
+          ,wrapDateLine      : true
+          ,attribution       : "GEBCO, NOAA, National Geographic, AND data by <a href='http://www.arcgis.com/home/item.html?id=6348e67824504fc9a62976434bf0d8d5'>ESRI</a>"
+        }
+      )
+      ,new OpenLayers.Layer.OSM(
+         'OpenStreetMap'
+        ,'http://tile.openstreetmap.org/${z}/${x}/${y}.png'
+        ,{
+           isBaseLayer : false
+          ,visibility  : false
+        }
+      )
       ,new OpenLayers.Layer.Google('Google Hybrid',{
          type          : google.maps.MapTypeId.HYBRID
         ,projection    : proj900913
@@ -1276,6 +1289,7 @@ function initMap() {
       navControl.controls[1].deactivate();
       navControl.draw();
     }
+    map.getLayersByName('OpenStreetMap')[0].setVisibility(map.baseLayer.name == 'ESRI Ocean' && map.getZoom() >= 14);
   });
 
   map.events.register('changelayer',this,function(e) {
