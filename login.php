@@ -52,7 +52,7 @@ case "":
         <div id="main">
             <div id="content">
                 <p>CoastMap Explorer provides live access to ASA's Environmental Data Server (EDS).</p>
-                <p>EDS is a data management infrastructure that manages vast amounts of ocean and meteorological observation and model data. The data is derived from government agencies as well as custom data from ASA.s modeling teams.</p>
+                <p>EDS is a data management infrastructure that manages vast amounts of ocean and meteorological observation and model data. The data is derived from government agencies as well as custom data from ASA's modeling teams.</p>
                 <p>The data spans global to regional domains and this explorer web site provides a view into the data with maps and time series data.</p>
                 <p>Other applications such as OILMAP and SAROPS can access the server to obtain data for scientific analysis and marine emergency response.</p>
                 <p>For a demo user account, or subscription information, please contact <a href="mailto:&#097;&#115;&#097;&#099;&#111;&#110;&#116;&#097;&#099;&#116;&#064;&#097;&#115;&#097;&#115;&#099;&#105;&#101;&#110;&#099;&#101;&#046;&#099;&#111;&#109;">&#097;&#115;&#097;&#099;&#111;&#110;&#116;&#097;&#099;&#116;&#064;&#097;&#115;&#097;&#115;&#099;&#105;&#101;&#110;&#099;&#101;&#046;&#099;&#111;&#109;</a></p>
