@@ -353,11 +353,6 @@ div.olControlMousePosition {
   z-index : 1001;
 }
 
-.alert {
-  color : red;
-  font-weight : bold;
-}
-
 .blueBorderImg img {
   border : 1px solid #99BBE8;
 }
@@ -461,4 +456,8 @@ div.olControlMousePosition {
 
 #categoryPanel {
   border-top: 1px solid #99BBE8;
+}
+
+#abstractPopup td {
+  font : 12px tahoma,helvetica,sans-serif
 }

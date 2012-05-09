@@ -1346,6 +1346,35 @@ function addWMS(l) {
   addLayer(lyr,true);
 }
 
+function getTimestampCallback(rec,lyr,r) {
+  if (r.responseText == '') {
+    var paramNew = {
+       REQUEST       : 'GetFeatureInfo'
+      ,EXCEPTIONS    : 'application/vnd.ogc.se_xml'
+      ,BBOX          : map.getExtent().toBBOX()
+      ,X             : 0
+      ,Y             : 0
+      ,INFO_FORMAT   : 'text/xml'
+      ,FEATURE_COUNT : 1
+      ,WIDTH         : map.size.w
+      ,HEIGHT        : map.size.h
+      ,TIME          : 'Abstract'
+    };
+    rec.set('timestamp','<a href="javascript:showAbstract(\'' + rec.get('displayName').split('||')[0] + '\',\'' + lyr.getFullRequestString(paramNew) + '\')">There was a problem<br/>drawing this layer.</a>');
+  }
+  else if (r.responseText == 'invalidBbox') {
+    rec.set('timestamp','<span>This layer\'s domain<br/>is out of bounds.<span>');
+  }
+  else if (r.responseText == 'dateNotAvailable') {
+    rec.set('timestamp','');
+  }
+  else {
+    var prevTs = rec.get('timestamp');
+    var newTs  = shortDateString(new Date(r.responseText * 1000));
+    rec.set('timestamp',newTs);
+  }
+}
+
 function addLayer(lyr,timeSensitive) {
   lyr.events.register('visibilitychanged',this,function(e) {
     if (!lyr.visibility) {
@@ -1412,22 +1441,7 @@ function addLayer(lyr,timeSensitive) {
             + '&BBOX=' +  map.getExtent().toArray().join(',')
             + '&' + new Date().getTime()
             + '&drawImg=false'
-          ,callback : function(r) {
-            if (r.responseText == '') {
-              rec.set('timestamp','<span class="alert">There was a problem<br/>drawing this layer.<span>');
-            }
-            else if (r.responseText == 'invalidBbox') {
-              rec.set('timestamp','<span class="alert">This layer\'s domain<br/>is out of bounds.<span>');
-            }
-            else if (r.responseText == 'dateNotAvailable') {
-              rec.set('timestamp','');
-            }
-            else {
-              var prevTs = rec.get('timestamp');
-              var newTs  = shortDateString(new Date(r.responseText * 1000));
-              rec.set('timestamp',newTs);
-            }
-          }
+          ,callback : OpenLayers.Function.bind(getTimestampCallback,null,rec,lyr)
         });
       }
     }
@@ -2131,4 +2145,25 @@ function lineColor2VectorColor(l) {
     }
   }
   return lineColors[0][1];
+}
+
+function showAbstract(title,u) {
+  layerLoadstartMask();
+  OpenLayers.Request.GET({
+     url      : 'getAbstract.php?' + u
+    ,callback : function(r) {
+      layerLoadendUnmask();
+      var json = new OpenLayers.Format.JSON().read(r.responseText);
+      if (json) {
+        Ext.Msg.buttonText.ok = 'Close';
+        Ext.Msg.alert(
+           title
+          ,"You may have reached this error if your requested map time does not fall within this model's valid time range.  The most recent forecast available is"
+            + ' <a href="#" onclick="dNow = new Date(' + json.endTime + ' * 1000);setMapTime();Ext.Msg.hide()">' + shortDateString(new Date(json.endTime * 1000)) + '</a>'
+            + '.'
+        );
+        Ext.Msg.buttonText.ok = 'OK';
+      }
+    }
+  });
 }
