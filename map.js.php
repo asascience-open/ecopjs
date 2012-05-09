@@ -1289,7 +1289,7 @@ function initMap() {
       navControl.controls[1].deactivate();
       navControl.draw();
     }
-    map.getLayersByName('OpenStreetMap')[0].setVisibility(map.baseLayer.name == 'ESRI Ocean' && map.getZoom() >= 14);
+    map.getLayersByName('OpenStreetMap')[0].setVisibility(map.baseLayer.name == 'ESRI Ocean' && map.getZoom() >= 12);
   });
 
   map.events.register('changelayer',this,function(e) {
