@@ -378,7 +378,7 @@ function initMainStore() {
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
           ,'bbox'                 : layerConfig.availableLayers[layerType][i].bbox
-          ,'queryable'            : 'false'
+          ,'queryable'            : 'true'
           ,'settingsLayers'       : ''
           ,'category'             : ''
         }));
