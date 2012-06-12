@@ -358,7 +358,7 @@ function initMainStore() {
           ,'name'                 : layerConfig.availableLayers[layerType][i].title
           ,'displayName'          : layerConfig.availableLayers[layerType][i].title
           ,'info'                 : 'off'
-          ,'status'               : 'off'
+          ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
           ,'settingsParam'        : ''
