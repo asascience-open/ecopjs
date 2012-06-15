@@ -35,6 +35,8 @@ var mainStore = new Ext.data.ArrayStore({
     ,'settingsMin'
     ,'settingsMax'
     ,'settingsMinMaxBounds'
+    ,'settingsDepth'
+    ,'settingsMaxDepth'
     ,'rank'
     ,'legend'
     ,'timestamp'
@@ -269,6 +271,8 @@ function initMainStore() {
           ,'settingsMin'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[5]
           ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[6]
           ,'settingsMinMaxBounds' : '0-6'
+          ,'settingsDepth'        : 0
+          ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -304,6 +308,8 @@ function initMainStore() {
           ,'settingsMin'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[3]
           ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[4]
           ,'settingsMinMaxBounds' : '0-70'
+          ,'settingsDepth'        : 0
+          ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -339,6 +345,8 @@ function initMainStore() {
           ,'settingsMin'          : ''
           ,'settingsMax'          : ''
           ,'settingsMinMaxBounds' : ''
+          ,'settingsDepth'        : 0
+          ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -374,6 +382,8 @@ function initMainStore() {
           ,'settingsMin'          : ''
           ,'settingsMax'          : ''
           ,'settingsMinMaxBounds' : ''
+          ,'settingsDepth'        : 0
+          ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -1752,6 +1762,38 @@ function setLayerSettings(layerName) {
         }
       })
     ];
+    if (mainStore.getAt(idx).get('settingsMaxDepth') != 0) {
+      height += 27;
+      items.push(
+        new Ext.Slider({
+           fieldLabel : 'Depth<a href="javascript:Ext.getCmp(\'tooltip.' + id + '.depth' + '\').show()"><img style="margin-left:2px;margin-bottom:2px" id="' + id + '.depth' + '" src="img/info.png"></a>'
+          ,id       : 'depth.' + id
+          ,width    : 130
+          ,minValue : 0
+          ,maxValue : mainStore.getAt(idx).get('settingsMaxDepth')
+          ,value    : mainStore.getAt(idx).get('settingsDepth')
+          ,plugins  : new Ext.slider.Tip({
+            getText : function(thumb) {
+              return String.format('<b>{0}</b>',thumb.value);
+            }
+          })
+          ,listeners : {
+            afterrender : function(el) {
+              new Ext.ToolTip({
+                 id     : 'tooltip.' + id + '.depth'
+                ,target : id + '.depth'
+                ,html   : "Adjust depth."
+              });
+              el.addListener('changecomplete',function(slider,val) {
+                mainStore.getAt(idx).set('settingsDepth',val);
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
+            }
+          }
+        })
+      )
+    }
     if (mainStore.getAt(idx).get('settingsImageQuality') != '') {
       height += 27;
       items.push(
@@ -1768,17 +1810,17 @@ function setLayerSettings(layerName) {
           ,width          : 130
           ,forceSelection : true
           ,listeners      : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.imageQuality'
                 ,target : id + '.imageQuality'
                 ,html   : "Selecting high quality may result in longer download times."
               });
-            }
-            ,select : function(comboBox,rec) {
-              mainStore.getAt(idx).set('settingsImageQuality',rec.get('name'));
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('select',function(comboBox,rec) {
+                mainStore.getAt(idx).set('settingsImageQuality',rec.get('name'));
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
           }
         })
@@ -1801,23 +1843,23 @@ function setLayerSettings(layerName) {
           ,forceSelection : true
           ,lastQuery      : ''
           ,listeners      : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.baseStyle'
                 ,target : id + '.baseStyle'
                 ,html   : "In general, the Black base style has a better appearance if high resolution is also selected."
               });
-            }
-            ,select : function(comboBox,rec) {
-              if (rec.get('value') == 'CURRENTS_STATIC_BLACK' && Ext.getCmp('colorMap')) {
-                Ext.getCmp('colorMap').disable();
-              }
-              else if (Ext.getCmp('colorMap')) {
-                Ext.getCmp('colorMap').enable();
-              }
-              mainStore.getAt(idx).set('settingsBaseStyle',rec.get('value'));
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('select',function(comboBox,rec) {
+                if (rec.get('value') == 'CURRENTS_STATIC_BLACK' && Ext.getCmp('colorMap')) {
+                  Ext.getCmp('colorMap').disable();
+                }
+                else if (Ext.getCmp('colorMap')) {
+                  Ext.getCmp('colorMap').enable();
+                }
+                mainStore.getAt(idx).set('settingsBaseStyle',rec.get('value'));
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
             ,beforerender : function() {
               baseStylesStore.filter('type',mainStore.getAt(idx).get('settingsBaseStyle').split('_')[0]);
@@ -1843,17 +1885,17 @@ function setLayerSettings(layerName) {
           ,width          : 130
           ,forceSelection : true
           ,listeners      : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.colormap'
                 ,target : id + '.colormap'
                 ,html   : "Feature contrasts may become more obvious based on the selected colormap."
               });
-            }
-            ,select : function(comboBox,rec) {
-              mainStore.getAt(idx).set('settingsColorMap',rec.get('name'));
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('select',function(comboBox,rec) {
+                mainStore.getAt(idx).set('settingsColorMap',rec.get('name'));
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
           }
         })
@@ -1883,18 +1925,18 @@ function setLayerSettings(layerName) {
             }
           })
           ,listeners : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.minMax'
                 ,target : id + '.minMax'
                 ,html   : "Use the slider to adjust the layer's minimum and maximum values."
               });
-            }
-            ,change : function(slider) {
-              mainStore.getAt(idx).set('settingsMin',slider.getValues()[0]);
-              mainStore.getAt(idx).set('settingsMax',slider.getValues()[1]);
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('changecomplete',function(slider) {
+                mainStore.getAt(idx).set('settingsMin',slider.getValues()[0]);
+                mainStore.getAt(idx).set('settingsMax',slider.getValues()[1]);
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
           }
         })
@@ -1933,17 +1975,17 @@ function setLayerSettings(layerName) {
             }
           })
           ,listeners : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.striding'
                 ,target : id + '.striding'
                 ,html   : "Adjust the space between vectors with the data density factor.  The impact of this value varies based on the zoom level."
               });
-            }
-            ,change : function(slider,val) {
-              mainStore.getAt(idx).set('settingsStriding',stridingStore.getAt(val).get('param'));
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('changecomplete',function(slider,val) {
+                mainStore.getAt(idx).set('settingsStriding',stridingStore.getAt(val).get('param'));
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
           }
         })
@@ -1965,17 +2007,17 @@ function setLayerSettings(layerName) {
           ,width          : 130
           ,forceSelection : true
           ,listeners      : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.tailMagnitude'
                 ,target : id + '.tailMagnitude'
                 ,html   : "Choose whether or not the vector tail length will vary based on its magnitude.  The difference may be subtle in layers with small magnitude variability." 
               });
-            }
-            ,select : function(comboBox,rec) {
-              mainStore.getAt(idx).set('settingsTailMag',rec.get('name'));
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('select',function(comboBox,rec) {
+                mainStore.getAt(idx).set('settingsTailMag',rec.get('name'));
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
           }
         })
@@ -1997,17 +2039,17 @@ function setLayerSettings(layerName) {
           ,width          : 130
           ,forceSelection : true
           ,listeners      : {
-            afterrender : function() {
+            afterrender : function(el) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.magnitudeLabel'
                 ,target : id + '.magnitudeLabel'
                 ,html   : "Choose whether or not a text label should be drawn by each vector to identify its magnitude."
               });
-            }
-            ,select : function(comboBox,rec) {
-              mainStore.getAt(idx).set('settingsBarbLabel',rec.get('name'));
-              mainStore.getAt(idx).commit();
-              setCustomStyles(mainStore.getAt(idx));
+              el.addListener('select',function(comboBox,rec) {
+                mainStore.getAt(idx).set('settingsBarbLabel',rec.get('name'));
+                mainStore.getAt(idx).commit();
+                setCustomStyles(mainStore.getAt(idx));
+              });
             }
           }
         })
@@ -2069,7 +2111,10 @@ function setCustomStyles(rec) {
     // record the action on google analytics
     pageTracker._trackEvent('setStyle','imageQuality',rec.get('name'));
   }
-  map.getLayersByName(rec.get('name'))[0].mergeNewParams({STYLES : styles.join('-')});
+  map.getLayersByName(rec.get('name'))[0].mergeNewParams({
+     STYLES    : styles.join('-')
+    ,ELEVATION : rec.get('settingsDepth')
+  });
 }
 
 function restoreDefaultStyles(l,items,id) {
@@ -2100,7 +2145,7 @@ function restoreDefaultStyles(l,items,id) {
     }
     else if (items[i].id == 'striding.' + id) {
       cmp.setValue(stridingStore.find('param',settings['striding']));
-      cmp.fireEvent('change',cmp,stridingStore.find('param',settings['striding']));
+      cmp.fireEvent('changecomplete',cmp,stridingStore.find('param',settings['striding']));
     }
     else if (items[i].id == 'tailMag.' + id) {
       cmp.setValue(settings['tailMag']);
@@ -2113,7 +2158,11 @@ function restoreDefaultStyles(l,items,id) {
     else if (items[i].id == 'minMax.' + id) {
       cmp.setValue(0,settings['min']);
       cmp.setValue(1,settings['max']);
-      cmp.fireEvent('change',cmp);
+      cmp.fireEvent('changecomplete',cmp);
+    }
+    else if (items[i].id == 'depth.' + id) {
+      cmp.setValue(0);
+      cmp.fireEvent('changecomplete',cmp,0);
     }
   }
 }

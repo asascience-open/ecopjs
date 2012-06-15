@@ -21,6 +21,7 @@
         ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'maxx'})
         ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'maxy'})
       )
+      ,'maxDepth' => sprintf("%f",$l->{'DepthLayers'})
       ,'status'   => in_array(sprintf("%s",$l->{'Name'}),$defaultLayers) ? 'on' : 'off'
     );
     if (preg_match('/_CURRENTS$/',$a['name'])) {
