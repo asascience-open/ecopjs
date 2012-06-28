@@ -198,9 +198,14 @@ var proj900913 = new OpenLayers.Projection("EPSG:900913");
 var proj4326   = new OpenLayers.Projection("EPSG:4326");
 
 var lineColors = [
-   ['#99BBE8','#1558BB']
-  ,['#e8bb99','#b56529']
-  ,['#99e9ae','#1d8538']
+   ['#66C2A5','#1B9E77']
+  ,['#FC8D62','#D95F02']
+  ,['#8DA0CB','#7570B3']
+  ,['#E78AC3','#E7298A']
+  ,['#A6D854','#66A61E']
+  ,['#FFD92F','#E6AB02']
+  ,['#E5C494','#A6761D']
+  ,['#B3B3B3','#666666']
 ];
 
 var activeSettingsWindows = {};
