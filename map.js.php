@@ -13,6 +13,8 @@
 
 var defaultBasemap = 'OpenStreetMap';
 
+var sessionListSort = 'date';
+
 var mainStore = new Ext.data.ArrayStore({
   fields : [
      'type'
@@ -862,6 +864,24 @@ function initComponents() {
                 ]
               }
               ,'->'
+             ,{
+                 xtype     : 'buttongroup'
+                ,autoWidth : true
+                ,columns   : 2
+                ,title     : 'Map session'
+                ,items     : [
+                  {text : 'Save',icon : 'img/disk16.png'}
+                  ,{text : 'Restore',icon : 'img/open16.png',menu : {items : [
+                     {icon : 'img/layers16.png',text : 'Gladstone: currents'}
+                    ,{icon : 'img/layers16.png',text : 'Gulf of Mexico: winds, waves, currents'}
+                    ,'-'
+                    ,{text : 'List most recent sessions on top',group : 'sessionSort',checked : sessionListSort == 'date',handler : function() {sessionListSort == 'date'}}
+                    ,{text : 'List sessions alphabetically',group : 'sessionSort',checked : sessionListSort == 'alpha',handler : function() {sessionListSort == 'alpha'}}
+                    ,'-'
+                    ,{icon : 'img/cog16.png',text : 'Launch session administration panel'}
+                  ]}}
+                ]
+              }
               ,{
                  xtype     : 'buttongroup'
                 ,autoWidth : true
