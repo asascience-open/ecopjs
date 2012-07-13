@@ -888,7 +888,8 @@ function initComponents() {
                 ,columns   : 2
                 ,title     : 'Map options'
                 ,items     : [
-                  {text : 'Basemap',icon : 'img/world16.png',menu : {items : [
+                   {text : 'Reset',icon : 'img/zoom_extend16.png',handler : function() {map.zoomToExtent(new OpenLayers.Bounds(<?php echo $_COOKIE['bounds']?>).transform(proj4326,proj900913))}}
+                  ,{text : 'Basemap',icon : 'img/world16.png',menu : {items : [
                     {
                        text         : 'ESRI Ocean'
                       ,checked      : defaultBasemap == 'ESRI Ocean'
