@@ -2,6 +2,8 @@
   ob_start();
   session_start();
 
+  date_default_timezone_set('UTC');
+
   $config = getenv('config') ? getenv('config') : 'DEFAULT';
   require_once("config/$config/conf.php");
   require_once('auth.php');
@@ -22,12 +24,14 @@
     <![endif]-->
 
     <script>
-      var config      = '<?php echo $config?>';
-      var globalTitle = '<?php echo $title?>';
-      var wms         = '<?php echo $wms?>';
-      var bannerImg   = '<?php echo $_COOKIE['bannerImg']?>';
-      var bannerURL   = '<?php echo $_COOKIE['bannerURL']?>';
-      var bannerTitle = '<?php echo str_replace("\n",'',str_replace("'","\\'",$_COOKIE['bannerTitle']))?>';
+      var config         = '<?php echo $config?>';
+      var globalTitle    = '<?php echo $title?>';
+      var wms            = '<?php echo $wms?>';
+      var bannerImg      = '<?php echo $_COOKIE['bannerImg']?>';
+      var bannerURL      = '<?php echo $_COOKIE['bannerURL']?>';
+      var bannerTitle    = '<?php echo str_replace("\n",'',str_replace("'","\\'",$_COOKIE['bannerTitle']))?>';
+      var expirationDate = new Date(<?php echo $_COOKIE['expirationDate']?> * 1000);
+      var userName       = '<?php echo $_COOKIE['userName']?>';
     </script>
 
     <script type="text/javascript">

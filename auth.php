@@ -25,17 +25,27 @@ function confirmUser($username,$password,$url)
 
     $xml = simplexml_load_file("$url&username=$username&pw=$password");
     if (array_key_exists('Error',$xml)) {
-      setcookie("failedLogin",true);
+      setcookie("failedLogin",'login');
       return false;
     }
     else {
       setcookie("failedLogin");
-      setcookie("softwareKey"  ,$xml->{'softwareKey'});
-      setcookie("bounds"       ,$xml->{'bounds'});
-      setcookie("defaultLayers",$xml->{'defaultLayers'});
-      setcookie("bannerImg"    ,$xml->{'bannerImg'});
-      setcookie("bannerURL"    ,$xml->{'bannerURL'});
-      setcookie("bannerTitle"  ,$xml->{'bannerTitle'});
+      setcookie("softwareKey"   ,$xml->{'softwareKey'});
+      setcookie("bounds"        ,$xml->{'bounds'});
+      setcookie("defaultLayers" ,$xml->{'defaultLayers'});
+      setcookie("bannerImg"     ,$xml->{'bannerImg'});
+      setcookie("bannerURL"     ,$xml->{'bannerURL'});
+      setcookie("bannerTitle"   ,$xml->{'bannerTitle'});
+      setcookie("userName"      ,$username);
+      $expirationDate = strtotime('20131231T2359Z');
+      if (isset($xml->{'expirationDate2'})) {
+        $expirationDate = strtotime($xml->{'expirationDate'});
+      }
+      if ($expirationDate < time()) {
+        setcookie("failedLogin",'subscription');
+        return false;
+      }
+      setcookie("expirationDate",$expirationDate);
       return true;
     }
 }

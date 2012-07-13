@@ -34,16 +34,16 @@ case "":
             #main{width: 1020px;height: 582px;margin: 25px auto 0 auto;background-image: url("config/<?php echo $config?>/img/bkgd_image.png");background-size: 1020px 582px;}
             #content{width: 452px;margin-left: 56px;padding-top: 140px;color: #00374C;font-size: 14px;}a{color: #00374C;}
             #login{background-image: url("config/<?php echo $config?>/img/gradient.png");background-repeat: repeat-x;margin: 14px auto 0 auto;color: #3c4d57;border: 1px solid #3c4d57;font-size: 16px;line-height: 43px;width: 1018px;}
-            input[type="text"], input[type="password"]{background-image: url("config/<?php echo $config?>/img/gradient.png");width: 226px;}
+            input[type="text"], input[type="password"]{background-image: url("config/<?php echo $config?>/img/gradient.png");width: 200px;}
 <?php
   if (array_key_exists('failedLogin',$_COOKIE)) {
 ?>
-            input[type="submit"]{margin-left: 59px;background-image: url("config/<?php echo $config?>/img/button_gradient.png");width: 80px;font-weight: bold;color: #3c4d57;font-size: 14px;}
+            input[type="submit"]{background-image: url("config/<?php echo $config?>/img/button_gradient.png");width: 80px;font-weight: bold;color: #3c4d57;font-size: 14px;}
 <?php
   }
   else {
 ?>
-            input[type="submit"]{margin-left: 175px;background-image: url("config/<?php echo $config?>/img/button_gradient.png");width: 80px;font-weight: bold;color: #3c4d57;font-size: 14px;}
+            input[type="submit"]{background-image: url("config/<?php echo $config?>/img/button_gradient.png");width: 80px;font-weight: bold;color: #3c4d57;font-size: 14px;}
 <?php
   }
 ?>
@@ -62,9 +62,9 @@ case "":
             <form id="form" NAME="login1" ACTION="login.php?do=login" METHOD="POST">
                 <input TYPE="hidden" name="returnurl" value="<?php $returnurl?>">
 <?php
-  $failed = '';
-  if (array_key_exists('failedLogin',$_COOKIE)) {
-    $failed = '&nbsp;&nbsp;&nbsp;&nbsp;<font style="color:#276BA6">Invalid login.</font>';
+  $failed = '<img src="config/'.$config.'/img/blank.png">';
+  if (array_key_exists('failedLogin',$_COOKIE) && $_COOKIE['failedLogin'] != '') {
+    $failed = '<img style="margin-bottom:-8px" src="config/'.$config.'/img/'.$_COOKIE['failedLogin'].'.png">';
     setcookie("failedLogin");
   }
 ?>

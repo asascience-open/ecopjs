@@ -243,6 +243,8 @@ function init() {
 
   initMainStore();
   initComponents();
+
+  Ext.Msg.alert('Welcome','Welcome, ' + userName + '.  Your subscription is set to expire on ' + expirationDate.toDateString() + '.');
 }
 
 function initMainStore() {
