@@ -47,7 +47,6 @@ var mainStore = new Ext.data.ArrayStore({
   ]
 });
 
-var defaultLayers = {};
 var defaultStyles = {};
 var guaranteeDefaultStyles = {};
 var legendsStore = new Ext.data.ArrayStore({
