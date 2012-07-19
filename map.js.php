@@ -870,7 +870,7 @@ function initComponents() {
                 ,columns   : 2
                 ,title     : 'Map session'
                 ,items     : [
-                   {text : 'Save'   ,icon : 'img/disk16.png'}
+                   {text : 'Save'   ,icon : 'img/disk16.png',handler : function() {saveBookmark()}}
                   ,{text : 'Restore',icon : 'img/open16.png',id : 'restoreSessionButton',menu : {listeners : {beforeshow : function(m) {getBookmarks(Ext.getCmp('restoreSessionButton'),m)}}}}
                 ]
               }
@@ -2240,6 +2240,54 @@ function showAbstract(title,u) {
   });
 }
 
+function saveBookmark() {
+  Ext.MessageBox.prompt(
+     'Save session'
+    ,'Please enter a name for this session:'
+    ,function(btn,text) {
+      if (btn == 'ok') {
+        if (new RegExp(/\w+/).test(text)) {
+          map.sessionName = text;
+          var layers = [];
+          var styles = [];
+          for (var i = 0; i < map.layers.length; i++) {
+            // WMS layers only
+            if (map.layers[i].DEFAULT_PARAMS && map.layers[i].visibility) {
+              var p = OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}));
+              layers.push(p['LAYERS']);
+              styles.push(p['STYLES']);
+            }
+          }
+          var p = [
+             'bookmarkName=' + text
+            ,'layers='       + layers.join(',')
+            ,'styles='       + styles.join(',')
+            ,'basemap='      + map.baseLayer.name
+            ,'extent='       + map.getExtent().transform(proj900913,proj4326)
+          ];
+          OpenLayers.Request.issue({
+             url      : './saveBookmark.php?' + wms + 'Request=AddBookmark&username=' + userName
+            ,method   : 'POST'
+            ,data     : p.join('&')
+            ,callback : function(r) {
+              var json = new OpenLayers.Format.JSON().read(r.responseText);
+              if (!json.success) {
+                Ext.Msg.alert('Session save error','There was a problem saving this session.  Please try again.');
+              }
+            }
+          });
+        }
+        else {
+          Ext.Msg.alert('Session save error','That was not a valid session name.  Please try again.',function() {saveBookmark()});
+        }
+      }
+    }
+    ,this
+    ,false
+    ,map.sessionName
+  );
+}
+
 function getBookmarks(p,m) {
   m.removeAll();
   m.add({text : 'Retrieving bookmarks...',canActivate : false});
@@ -2253,10 +2301,10 @@ function getBookmarks(p,m) {
       var allBm  = [];
       var top5Bm = [];
       for (var i = 0; i < json.all.length; i++) { 
-        allBm.push({icon : 'img/layers16.png',text : json.all[i].name});
+        allBm.push({icon : 'img/layers16.png',text : json.all[i].name,handler : function() {map.sessionName = this.text}});
       }
       for (var i = 0; i < json.top5.length; i++) {
-        top5Bm.push({icon : 'img/layers16.png',text : json.top5[i].name});
+        top5Bm.push({icon : 'img/layers16.png',text : json.top5[i].name,handler : function() {map.sessionName = this.text}});
       } 
       m.add([
          {text : '<font style="color:#15428b"><b>Most recently accessed sessions</b></font>',canActivate : false}
