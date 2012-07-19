@@ -3,7 +3,7 @@
 
   $config = getenv('config') ? getenv('config') : 'DEFAULT';
   require_once("config/$config/conf.php");
-  require_once("config/$config/getCaps.php");
+  require_once("getCaps.php");
 
   echo 'var layerConfig = '.json_encode(array(
      'availableLayers' => $layers
