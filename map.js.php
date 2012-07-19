@@ -870,16 +870,25 @@ function initComponents() {
                 ,columns   : 2
                 ,title     : 'Map session'
                 ,items     : [
-                  {text : 'Save',icon : 'img/disk16.png'}
-                  ,{text : 'Restore',icon : 'img/open16.png',menu : {items : [
-                     {icon : 'img/layers16.png',text : 'Gladstone: currents'}
-                    ,{icon : 'img/layers16.png',text : 'Gulf of Mexico: winds, waves, currents'}
-                    ,'-'
-                    ,{text : 'List most recent sessions on top',group : 'sessionSort',checked : sessionListSort == 'date',handler : function() {sessionListSort == 'date'}}
-                    ,{text : 'List sessions alphabetically',group : 'sessionSort',checked : sessionListSort == 'alpha',handler : function() {sessionListSort == 'alpha'}}
-                    ,'-'
-                    ,{icon : 'img/cog16.png',text : 'Launch session administration panel'}
-                  ]}}
+                   {text : 'Save'   ,icon : 'img/disk16.png'}
+                  ,{text : 'Restore',icon : 'img/open16.png',menu : {listeners : {beforeshow : function(m) {
+                    m.removeAll();
+                    m.add([
+                       {text : '<font style="color:#15428b"><b>Most recently accessed sessions</b></font>',canActivate : false}
+                      ,{icon : 'img/layers16.png',text : 'Gladstone: currents'}
+                      ,{icon : 'img/layers16.png',text : 'Gulf of Mexico: winds, waves, currents'}
+                      ,'-'
+                      ,{
+                         text : 'All saved sessions'
+                        ,menu : [
+                           {icon : 'img/layers16.png',text : 'Gladstone: currents'}
+                          ,{icon : 'img/layers16.png',text : 'Gulf of Mexico: winds, waves, currents'}
+                        ]
+                      }
+                      ,'-'
+                      ,{icon : 'img/cog16.png',text : 'Launch session administration panel'}
+                    ]);
+                  }}}}
                 ]
               }
               ,{
@@ -888,8 +897,7 @@ function initComponents() {
                 ,columns   : 2
                 ,title     : 'Map options'
                 ,items     : [
-                   {text : 'Reset',icon : 'img/zoom_extend16.png',handler : function() {map.zoomToExtent(new OpenLayers.Bounds(<?php echo $_COOKIE['bounds']?>).transform(proj4326,proj900913))}}
-                  ,{text : 'Basemap',icon : 'img/world16.png',menu : {items : [
+                  {text : 'Basemap',icon : 'img/world16.png',menu : {items : [
                     {
                        text         : 'ESRI Ocean'
                       ,checked      : defaultBasemap == 'ESRI Ocean'
