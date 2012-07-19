@@ -17,7 +17,7 @@
 
   $names = array();
   foreach ($bm as $k => $v) {
-    $names[$k] = $v['name'];
+    $names[$k] = strtolower($v['name']);
   }
   array_multisort($names,SORT_ASC,$bm);
 
@@ -27,7 +27,6 @@
   }
   $bmByDate = $bm;
   array_multisort($addedDate,SORT_DESC,$bmByDate);
-
 
   echo json_encode(array(
      'all'  => $bm

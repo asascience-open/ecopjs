@@ -880,7 +880,7 @@ function initComponents() {
                 ,columns   : 2
                 ,title     : 'Map options'
                 ,items     : [
-                  {text : 'Basemap',icon : 'img/world16.png',menu : {items : [
+                  {text : 'Basemap',icon : 'img/world16.png',menu : {id : 'basemapMenu',items : [
                     {
                        text         : 'ESRI Ocean'
                       ,checked      : defaultBasemap == 'ESRI Ocean'
@@ -2253,9 +2253,8 @@ function saveBookmark() {
           for (var i = 0; i < map.layers.length; i++) {
             // WMS layers only
             if (map.layers[i].DEFAULT_PARAMS && map.layers[i].visibility) {
-              var p = OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}));
-              layers.push(p['LAYERS']);
-              styles.push(p['STYLES']);
+              layers.push(map.layers[i].name);
+              styles.push(OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}))['STYLES']);
             }
           }
           var p = [
@@ -2263,7 +2262,7 @@ function saveBookmark() {
             ,'layers='       + layers.join(',')
             ,'styles='       + styles.join(',')
             ,'basemap='      + map.baseLayer.name
-            ,'extent='       + map.getExtent().transform(proj900913,proj4326)
+            ,'extent='       + map.getCenter().toShortString().replace(' ','') + ',' + map.getZoom()
           ];
           OpenLayers.Request.issue({
              url      : './saveBookmark.php?' + wms + 'Request=AddBookmark&username=' + userName
@@ -2301,13 +2300,23 @@ function getBookmarks(p,m) {
       var allBm  = [];
       var top5Bm = [];
       for (var i = 0; i < json.all.length; i++) { 
-        allBm.push({icon : 'img/layers16.png',text : json.all[i].name,handler : function() {map.sessionName = this.text}});
+        allBm.push({
+           icon        : 'img/layers16.png'
+          ,text        : json.all[i].name
+          ,sessionInfo : json.all[i]
+          ,handler     : function(b) {restoreSession(b.sessionInfo)}
+        });
       }
       for (var i = 0; i < json.top5.length; i++) {
-        top5Bm.push({icon : 'img/layers16.png',text : json.top5[i].name,handler : function() {map.sessionName = this.text}});
+        top5Bm.push({
+           icon        : 'img/layers16.png'
+          ,text        : json.top5[i].name
+          ,sessionInfo : json.top5[i]
+          ,handler     : function(b) {restoreSession(b.sessionInfo)}
+        });
       } 
       m.add([
-         {text : '<font style="color:#15428b"><b>Most recently accessed sessions</b></font>',canActivate : false}
+         {text : '<font style="color:#15428b"><b>Most recent sessions</b></font>',canActivate : false}
         ,top5Bm
         ,'-'
         ,{
@@ -2319,4 +2328,55 @@ function getBookmarks(p,m) {
       ]);
     }
   });
+}
+
+function restoreSession(s) {
+  map.sessionName = s.name;
+  map.setBaseLayer(map.getLayersByName(s.basemap)[0]);
+  var bmMenu = Ext.getCmp('basemapMenu');
+  for (var i = 0; i < bmMenu.items.length; i++) {
+    var item = bmMenu.get(i);
+    if (item.setChecked) {
+      item.setChecked(item.text == s.basemap,true);
+    }
+  }
+  var e = s.extent.split(',');
+  map.setCenter(new OpenLayers.LonLat(e[0],e[1]),e[2]);
+  var layers = s.layers.split(',');
+  var styles = s.styles.split(',');
+  var activeLayers = {};
+  for (var i = 0; i < layers.length; i++) {
+    activeLayers[layers[i]] = true;
+    map.getLayersByName(layers[i])[0].mergeNewParams({
+      STYLES : styles[i] // ELEVATION : ???
+    });
+  }
+  var recs = [];
+  currentsStore.each(function(rec) {
+    if (activeLayers[rec.get('name')]) {
+      recs.push(rec);
+    }
+  });
+  Ext.getCmp('currentsGridPanel').getSelectionModel().selectRecords(recs); 
+  recs = [];
+  windsStore.each(function(rec) {
+    if (activeLayers[rec.get('name')]) {
+      recs.push(rec);
+    }
+  });
+  Ext.getCmp('windsGridPanel').getSelectionModel().selectRecords(recs);
+  recs = [];
+  wavesStore.each(function(rec) {
+    if (activeLayers[rec.get('name')]) {
+      recs.push(rec);
+    }
+  });
+  Ext.getCmp('wavesGridPanel').getSelectionModel().selectRecords(recs);
+  recs = [];
+  otherStore.each(function(rec) {
+    if (activeLayers[rec.get('name')]) {
+      recs.push(rec);
+    }
+  });
+  Ext.getCmp('otherGridPanel').getSelectionModel().selectRecords(recs);
 }
