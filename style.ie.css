@@ -18,3 +18,10 @@
 #bathyContourCbox {
   right    : 6px;
 }
+
+div.olControlZoom {
+  background-image: url("img/zoomBoxBg.png") !important;
+}
+div.olControlZoom a {
+  background-image: url("img/zoomButtonBg.png") !important;
+}
