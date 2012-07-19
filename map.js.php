@@ -871,24 +871,7 @@ function initComponents() {
                 ,title     : 'Map session'
                 ,items     : [
                    {text : 'Save'   ,icon : 'img/disk16.png'}
-                  ,{text : 'Restore',icon : 'img/open16.png',menu : {listeners : {beforeshow : function(m) {
-                    m.removeAll();
-                    m.add([
-                       {text : '<font style="color:#15428b"><b>Most recently accessed sessions</b></font>',canActivate : false}
-                      ,{icon : 'img/layers16.png',text : 'Gladstone: currents'}
-                      ,{icon : 'img/layers16.png',text : 'Gulf of Mexico: winds, waves, currents'}
-                      ,'-'
-                      ,{
-                         text : 'All saved sessions'
-                        ,menu : [
-                           {icon : 'img/layers16.png',text : 'Gladstone: currents'}
-                          ,{icon : 'img/layers16.png',text : 'Gulf of Mexico: winds, waves, currents'}
-                        ]
-                      }
-                      ,'-'
-                      ,{icon : 'img/cog16.png',text : 'Launch session administration panel'}
-                    ]);
-                  }}}}
+                  ,{text : 'Restore',icon : 'img/open16.png',id : 'restoreSessionButton',menu : {listeners : {beforeshow : function(m) {getBookmarks(Ext.getCmp('restoreSessionButton'),m)}}}}
                 ]
               }
               ,{
@@ -2253,6 +2236,39 @@ function showAbstract(title,u) {
         );
         Ext.Msg.buttonText.ok = 'OK';
       }
+    }
+  });
+}
+
+function getBookmarks(p,m) {
+  m.removeAll();
+  m.add({text : 'Retrieving bookmarks...',canActivate : false});
+  p.disable();
+  OpenLayers.Request.GET({
+     url      : 'getBookmarks.php?' + wms + 'Request=GetBookmarks&username=' + userName
+    ,callback : function(r) {
+      p.enable();
+      m.removeAll();
+      var json = new OpenLayers.Format.JSON().read(r.responseText);
+      var allBm  = [];
+      var top5Bm = [];
+      for (var i = 0; i < json.all.length; i++) { 
+        allBm.push({icon : 'img/layers16.png',text : json.all[i].name});
+      }
+      for (var i = 0; i < json.top5.length; i++) {
+        top5Bm.push({icon : 'img/layers16.png',text : json.top5[i].name});
+      } 
+      m.add([
+         {text : '<font style="color:#15428b"><b>Most recently accessed sessions</b></font>',canActivate : false}
+        ,top5Bm
+        ,'-'
+        ,{
+           text : 'All saved sessions'
+          ,menu : allBm
+        }
+        ,'-'
+        ,{icon : 'img/cog16.png',text : 'Launch session administration panel'}
+      ]);
     }
   });
 }
