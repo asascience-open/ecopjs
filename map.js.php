@@ -471,7 +471,7 @@ function initComponents() {
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['currents'] = true;
       needToInitGridPanel['currents'] = true;
-      syncLayersToBbox('currents');
+      syncLayersToBbox(map.getExtent(),false,'currents');
       var sm = grid.getSelectionModel();
       currentsStore.each(function(rec) {
         if (rec.get('status') == 'on') {
@@ -510,7 +510,7 @@ function initComponents() {
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['winds'] = true;
       needToInitGridPanel['winds'] = true;
-      syncLayersToBbox('winds');
+      syncLayersToBbox(map.getExtent(),false,'winds');
       var sm = grid.getSelectionModel();
       windsStore.each(function(rec) {
         if (rec.get('status') == 'on') {
@@ -549,7 +549,7 @@ function initComponents() {
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['waves'] = true;
       needToInitGridPanel['waves'] = true;
-      syncLayersToBbox('waves');
+      syncLayersToBbox(map.getExtent(),false,'waves');
       var sm = grid.getSelectionModel();
       wavesStore.each(function(rec) {
         if (rec.get('status') == 'on') {
@@ -588,7 +588,7 @@ function initComponents() {
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['other'] = true;
       needToInitGridPanel['other'] = true;
-      syncLayersToBbox('other');
+      syncLayersToBbox(map.getExtent(),false,'other');
       var sm = grid.getSelectionModel();
       otherStore.each(function(rec) {
         if (rec.get('status') == 'on') {
@@ -658,7 +658,12 @@ function initComponents() {
            checked   : false
           ,id        : 'restrictLayersToBbox'
           ,listeners : {check : function() {
-            syncLayersToBbox();
+            if (this.checked) {
+              syncLayersToBbox(map.getExtent(),true);
+            }
+            else {
+              syncLayersToBbox(false,true);
+            }
           }}
         })
       ]
@@ -1156,8 +1161,11 @@ function renderLegend(val,metadata,rec) {
   return a.join('<br/>');
 }
 
-function syncLayersToBbox(l) {
-  if (!Ext.getCmp('restrictLayersToBbox').checked) {
+function syncLayersToBbox(mapBbox,force,l) {
+  if (mapBbox) {
+    mapBbox.transform(map.getProjectionObject(),proj4326);
+  }
+  if (!Ext.getCmp('restrictLayersToBbox').checked && !force) {
     return;
   }
   for (var type in layersToSyncBbox) {
@@ -1177,8 +1185,9 @@ function syncLayersToBbox(l) {
         if (rec.get('type') == type) {
           var bbox = String(rec.get('bbox')).split(',');
           if (
-            map.getExtent().transform(map.getProjectionObject(),proj4326).intersectsBounds(new OpenLayers.Bounds(bbox[0],bbox[1],bbox[2],bbox[3]))
-            || new OpenLayers.Bounds(bbox[0],bbox[1],bbox[2],bbox[3]).containsBounds(map.getExtent().transform(map.getProjectionObject(),proj4326))
+            !mapBbox
+            || mapBbox.intersectsBounds(new OpenLayers.Bounds(bbox[0],bbox[1],bbox[2],bbox[3]))
+            || new OpenLayers.Bounds(bbox[0],bbox[1],bbox[2],bbox[3]).containsBounds(mapBbox)
             || !Ext.getCmp('restrictLayersToBbox').checked
           ) {
             sto.add(rec);
@@ -1317,7 +1326,7 @@ function initMap() {
   map.addControl(mouseControl);
 
   map.events.register('moveend',this,function() {
-    syncLayersToBbox();
+    syncLayersToBbox(map.getExtent(),false);
     if (navControl.controls[1].active) {
       navControl.controls[1].deactivate();
       navControl.draw();
@@ -2335,10 +2344,7 @@ function getBookmarks(p,m) {
 }
 
 function restoreSession(s) {
-/*
   Ext.getCmp('restrictLayersToBbox').setValue(false);
-  syncLayersToBbox();
-*/
   map.sessionName = s.name;
   map.setBaseLayer(map.getLayersByName(s.basemap)[0]);
   var bmMenu = Ext.getCmp('basemapMenu');
