@@ -112,11 +112,11 @@ var stridingStore = new Ext.data.ArrayStore({
   ,data : [
      [0,0.25]
     ,[1,0.33]
-    ,[2,0.50]
-    ,[3,1.00]
-    ,[4,2.00]
-    ,[5,3.00]
-    ,[6,4.00]
+    ,[2,0.5]
+    ,[3,1]
+    ,[4,2]
+    ,[5,3]
+    ,[6,4]
   ]
 });
 
@@ -2250,17 +2250,21 @@ function saveBookmark() {
           map.sessionName = text;
           var layers = [];
           var styles = [];
+          var elevs  = [];
           for (var i = 0; i < map.layers.length; i++) {
             // WMS layers only
             if (map.layers[i].DEFAULT_PARAMS && map.layers[i].visibility) {
               layers.push(map.layers[i].name);
-              styles.push(OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}))['STYLES']);
+              var p = OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}));
+              styles.push(p['STYLES']);
+              elevs.push(p['ELEVATION']);
             }
           }
           var p = [
              'bookmarkName=' + text
             ,'layers='       + layers.join(',')
             ,'styles='       + styles.join(',')
+            ,'elevations='   + elevs.join(',')
             ,'basemap='      + map.baseLayer.name
             ,'extent='       + map.getCenter().toShortString().replace(' ','') + ',' + map.getZoom()
           ];
@@ -2331,6 +2335,10 @@ function getBookmarks(p,m) {
 }
 
 function restoreSession(s) {
+/*
+  Ext.getCmp('restrictLayersToBbox').setValue(false);
+  syncLayersToBbox();
+*/
   map.sessionName = s.name;
   map.setBaseLayer(map.getLayersByName(s.basemap)[0]);
   var bmMenu = Ext.getCmp('basemapMenu');
@@ -2344,26 +2352,56 @@ function restoreSession(s) {
   map.setCenter(new OpenLayers.LonLat(e[0],e[1]),e[2]);
   var layers = s.layers.split(',');
   var styles = s.styles.split(',');
+  var elevs  = s.elevations.split(',');
   var activeLayers = {};
   for (var i = 0; i < layers.length; i++) {
-    activeLayers[layers[i]] = true;
-    map.getLayersByName(layers[i])[0].mergeNewParams({
-      STYLES : styles[i] // ELEVATION : ???
+    activeLayers[layers[i]] = map.getLayersByName(layers[i])[0];
+    activeLayers[layers[i]].mergeNewParams({
+      STYLES    : styles[i]
+     ,ELEVATION : elevs[i]
     });
   }
   var recs = [];
   currentsStore.each(function(rec) {
     if (activeLayers[rec.get('name')]) {
+      var mainRec = mainStore.getAt(mainStore.findExact('name',rec.get('name')));
+      var s = OpenLayers.Util.getParameters(activeLayers[rec.get('name')].getFullRequestString({}))['STYLES'].split('-');
+      mainRec.set('settingsImageQuality',s[7]);
+      mainRec.set('settingsBaseStyle',s[0]);
+      mainRec.set('settingsColorMap',s[1]);
+      mainRec.set('settingsStriding',s[3]);
+      mainRec.set('settingsBarbLabel',s[2]);
+      mainRec.set('settingsTailMag',s[4]);
+      mainRec.set('settingsMin',s[5]);
+      mainRec.set('settingsMax',s[6]);
+      mainRec.commit();
       recs.push(rec);
     }
   });
+  var fs = Ext.getCmp('currentsFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
   Ext.getCmp('currentsGridPanel').getSelectionModel().selectRecords(recs); 
   recs = [];
   windsStore.each(function(rec) {
     if (activeLayers[rec.get('name')]) {
+      var mainRec = mainStore.getAt(mainStore.findExact('name',rec.get('name')));
+      var s = OpenLayers.Util.getParameters(activeLayers[rec.get('name')].getFullRequestString({}))['STYLES'].split('-');
+      mainRec.set('settingsImageQuality',s[5]);
+      mainRec.set('settingsBaseStyle',s[0]);
+      mainRec.set('settingsStriding',s[2]);
+      mainRec.set('settingsBarbLabel',s[1]);
+      mainRec.set('settingsMin',s[3]);
+      mainRec.set('settingsMax',s[4]);
+      mainRec.commit();
       recs.push(rec);
     }
   });
+  fs = Ext.getCmp('windsFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
   Ext.getCmp('windsGridPanel').getSelectionModel().selectRecords(recs);
   recs = [];
   wavesStore.each(function(rec) {
@@ -2371,6 +2409,10 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
+  fs = Ext.getCmp('wavesFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
   Ext.getCmp('wavesGridPanel').getSelectionModel().selectRecords(recs);
   recs = [];
   otherStore.each(function(rec) {
@@ -2378,5 +2420,8 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
+  fs = Ext.getCmp('otherFieldSet');
+  // don't supress events since we want it to resize
+  fs.expand();
   Ext.getCmp('otherGridPanel').getSelectionModel().selectRecords(recs);
 }
