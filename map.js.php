@@ -2411,6 +2411,22 @@ function adminBookmarks() {
 }
 
 function restoreSession(s) {
+  var fs = Ext.getCmp('currentsFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
+  fs = Ext.getCmp('windsFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
+  fs = Ext.getCmp('wavesFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
+  fs = Ext.getCmp('otherFieldSet');
+  // don't supress events since we want it to resize
+  fs.expand();
+
   Ext.getCmp('restrictLayersToBbox').setValue(false);
   map.sessionName = s.name;
   map.setBaseLayer(map.getLayersByName(s.basemap)[0]);
@@ -2451,10 +2467,6 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
-  var fs = Ext.getCmp('currentsFieldSet');
-  fs.suspendEvents();
-  fs.expand();
-  fs.resumeEvents();
   Ext.getCmp('currentsGridPanel').getSelectionModel().selectRecords(recs); 
   recs = [];
   windsStore.each(function(rec) {
@@ -2471,10 +2483,6 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
-  fs = Ext.getCmp('windsFieldSet');
-  fs.suspendEvents();
-  fs.expand();
-  fs.resumeEvents();
   Ext.getCmp('windsGridPanel').getSelectionModel().selectRecords(recs);
   recs = [];
   wavesStore.each(function(rec) {
@@ -2482,10 +2490,6 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
-  fs = Ext.getCmp('wavesFieldSet');
-  fs.suspendEvents();
-  fs.expand();
-  fs.resumeEvents();
   Ext.getCmp('wavesGridPanel').getSelectionModel().selectRecords(recs);
   recs = [];
   otherStore.each(function(rec) {
@@ -2493,8 +2497,5 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
-  fs = Ext.getCmp('otherFieldSet');
-  // don't supress events since we want it to resize
-  fs.expand();
   Ext.getCmp('otherGridPanel').getSelectionModel().selectRecords(recs);
 }
