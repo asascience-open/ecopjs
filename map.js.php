@@ -2337,7 +2337,7 @@ function getBookmarks(p,m) {
           ,menu : allBm
         }
         ,'-'
-        ,{icon : 'img/delete.png',text : 'Delete bookmark(s)...',handler : function() {adminBookmarks()}}
+        ,{icon : 'img/delete.png',text : 'Delete session(s)...',handler : function() {adminBookmarks()}}
       ]);
     }
   });
@@ -2364,7 +2364,7 @@ function adminBookmarks() {
     win.hide();
   }
   win = new Ext.Window({
-     title  : 'Delete bookmark(s)'
+     title  : 'Delete session(s)'
     ,id     : 'adminBookmarks'
     ,layout : 'fit'
     ,width  : 320
