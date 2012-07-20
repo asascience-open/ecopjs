@@ -2337,10 +2337,77 @@ function getBookmarks(p,m) {
           ,menu : allBm
         }
         ,'-'
-        ,{icon : 'img/cog16.png',text : 'Launch session administration panel'}
+        ,{icon : 'img/delete.png',text : 'Delete bookmark(s)...',handler : function() {adminBookmarks()}}
       ]);
     }
   });
+}
+
+function deleteBookmark(name) {
+  OpenLayers.Request.issue({
+     url      : './deleteBookmark.php?' + wms + 'Request=RemoveBookmark&username=' + userName
+    ,method   : 'POST'
+    ,data     : 'bookmarkName=' + name
+    ,callback : function(r) {
+      var json = new OpenLayers.Format.JSON().read(r.responseText);
+      if (!json.success) {
+        Ext.Msg.alert('Session deletion error','There was a problem deleting this session.  Please try again.');
+      }
+      Ext.getCmp('deleteBookmarksGridPanel').getStore().load();
+    }
+  });
+}
+
+function adminBookmarks() {
+  var win = Ext.getCmp('adminBookmarks');
+  if (win) {
+    win.hide();
+  }
+  win = new Ext.Window({
+     title  : 'Delete bookmark(s)'
+    ,id     : 'adminBookmarks'
+    ,layout : 'fit'
+    ,width  : 320
+    ,height : 440
+    ,constrainHeader : true
+    ,modal           : true
+    ,items  : new Ext.FormPanel({
+       border     : false
+      ,autoScroll : true
+      ,layout     : 'fit'
+      ,bodyStyle  : 'border-bottom: 1px solid #99BBE8'
+      ,items      : [
+        new Ext.grid.GridPanel({
+           store            : new Ext.data.JsonStore({
+              url      : 'getBookmarks.php?' + wms + 'Request=GetBookmarks&username=' + userName
+             ,root     : 'all'
+             ,fields   : ['name']
+             ,autoLoad : true
+           })
+          ,id               : 'deleteBookmarksGridPanel'
+          ,hideHeaders      : true
+          ,loadMask         : true
+          ,border           : false
+          ,columns          : [
+             {id : 'name',dataIndex : 'name',header : 'Name'}
+            ,{id : 'del',width : 40,renderer : function(val,metadata,rec) {
+              return '<a href="javascript:deleteBookmark(\'' + rec.get('name') + '\')"><img src="img/delete.png"></a>';
+            }}
+          ]
+          ,autoExpandColumn : 'name'
+        })
+      ]
+      ,buttons : [
+        {
+           text    : 'Close'
+          ,handler : function() {
+            Ext.getCmp('adminBookmarks').hide();
+          }
+        }
+      ]
+    })
+  });
+  win.show();
 }
 
 function restoreSession(s) {
