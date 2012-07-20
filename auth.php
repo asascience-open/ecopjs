@@ -37,9 +37,9 @@ function confirmUser($username,$password,$url)
       setcookie("bannerURL"     ,$xml->{'bannerURL'});
       setcookie("bannerTitle"   ,$xml->{'bannerTitle'});
       setcookie("userName"      ,$username);
-      $expirationDate = strtotime('20131231T2359Z');
-      if (isset($xml->{'expirationDate2'})) {
-        $expirationDate = strtotime($xml->{'expirationDate'});
+      if (isset($xml->{'expirationDate'})) {
+        $t = new DateTime(sprintf("%s",$xml->{'expirationDate'}));
+        $expirationDate = $t->format('U');
       }
       if ($expirationDate < time()) {
         setcookie("failedLogin",'subscription');
