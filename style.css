@@ -462,3 +462,5 @@ div.olControlMousePosition {
 #abstractPopup td {
   font : 12px tahoma,helvetica,sans-serif
 }
+
+.olImageLoadError { display: none; }
