@@ -12,7 +12,7 @@
      $wms
     .'service=WMS&key='.$_COOKIE['softwareKey']
     .'&version=1.1.1&request=getcapabilities'
-    .'&'.time()
+    .'&rand='.time()
   );
   $defaultLayers = explode(',',$_COOKIE['defaultLayers']);
   foreach ($xml->{'Capability'}[0]->{'Layer'}[0]->{'Layer'} as $l) {
