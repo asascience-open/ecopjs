@@ -1504,16 +1504,7 @@ function addBuoy(l) {
   if (!selectBuoyControl) {
     var sensorTr = [];
     for (var i = 0; i < f.attributes.sensors.length; i++) {
-      var gfi = l.url
-        + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG:3857&EXCEPTIONS=application/vnd.ogc.se_xml&INFO_FORMAT=text/xml&FORMAT=image/png&TRANSPARENT=TRUE&STYLES='
-        + '&BBOX=' + map.getExtent().toBBOX()
-        + '&X=' + pix.x
-        + '&Y=' + pix.y
-        + '&WIDTH=' + map.size.w
-        + '&HEIGHT=' + map.size.h
-        + '&QUERY_LAYERS=' + f.attributes.sensors[i].name
-        + '&LAYERS=' + f.attributes.sensors[i].name ;
-      sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><a target=_blank href="' + gfi + '">GFI</a></td><tr>');
+      sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><a href="javascript:queryBuoy(\'' + l.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')">GFI</a></td><tr>');
     }
     var html = '<table class="obsPopup">'
       + '<tr><th colspan=2>' + f.layer.name.split('||')[0] + '</th></tr>'
@@ -1748,6 +1739,21 @@ function mapClick(xy,doWMS,chartIt) {
       return queryWMS(xy,queryLyrs,chartIt);
     }
   }
+}
+
+function queryBuoy(url,name,x,y) {
+  var d = dNow < new Date() ? dNow : new Date();
+  var gfi = url
+    + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG:3857&EXCEPTIONS=application/vnd.ogc.se_xml&INFO_FORMAT=text/xml&FORMAT=image/png&TRANSPARENT=TRUE&STYLES='
+    + '&BBOX=' + map.getExtent().toBBOX()
+    + '&X=' + x
+    + '&Y=' + y
+    + '&WIDTH=' + map.size.w
+    + '&HEIGHT=' + map.size.h
+    + '&QUERY_LAYERS=' + name
+    + '&LAYERS=' + name
+    + '&TIME=' + d.getUTCFullYear() + '-' + String.leftPad(d.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d.getUTCDate(),2,'0') + 'T' + String.leftPad(d.getUTCHours(),2,'0') + ':' + String.leftPad(d.getUTCMinutes(),2,'0')
+  alert(gfi);
 }
 
 function queryWMS(xy,a,chartIt) {
