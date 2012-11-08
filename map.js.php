@@ -13,6 +13,9 @@
 
 var defaultBasemap = 'OpenStreetMap';
 
+var selectBuoyControl;
+var selectedBuoyFeature;
+
 var sessionListSort = 'date';
 
 var mainStore = new Ext.data.ArrayStore({
@@ -1460,15 +1463,79 @@ function initMap() {
   });
 
   for (var i = 0; i < layerConfig.layerStack.length; i++) {
-    addWMS({
-       name       : layerConfig.layerStack[i].title
-      ,url        : 'http://coastmap.com/ecop/wms.aspx?'
-      ,layers     : layerConfig.layerStack[i].name
-      ,format     : 'image/png'
-      ,styles     : defaultStyles[layerConfig.layerStack[i].title]
-      ,singleTile : true
-      ,projection : proj3857
+    if (new RegExp(/BUOY/).test(layerConfig.layerStack[i].name)) {
+      addBuoy({
+         name       : layerConfig.layerStack[i].title
+        ,sensors    : layerConfig.layerStack[i].sensors
+        ,bbox       : layerConfig.layerStack[i].bbox
+      });
+    }
+    else {
+      addWMS({
+         name       : layerConfig.layerStack[i].title
+        ,url        : 'http://coastmap.com/ecop/wms.aspx?'
+        ,layers     : layerConfig.layerStack[i].name
+        ,format     : 'image/png'
+        ,styles     : defaultStyles[layerConfig.layerStack[i].title]
+        ,singleTile : true
+        ,projection : proj3857
+      });
+    }
+  }
+}
+
+function addBuoy(l) {
+  var lyr = new OpenLayers.Layer.Vector(
+     l.name
+    ,{visibility : mainStore.getAt(mainStore.find('name',l.name)).get('status') == 'on'}
+  );
+  var f = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(l.bbox[0],l.bbox[1]).transform(proj4326,map.getProjectionObject()));
+  f.attributes = {
+    sensors : l.sensors
+  }
+  lyr.addFeatures(f);
+  map.addLayer(lyr);
+
+  if (!selectBuoyControl) {
+    selectBuoyControl = new OpenLayers.Control.SelectFeature(lyr,{
+      onSelect    : function(f) {
+        console.dir(f);
+        selectedBuoyFeature = f;
+        var popup = new OpenLayers.Popup.FramedCloud(
+           'popup'
+          ,f.geometry.getBounds().getCenterLonLat()
+          ,null
+          ,f.layer.name.split('||')[0]
+          ,null
+          ,true
+          ,function(e) {
+            selectBuoyControl.unselect(selectedBuoyFeature);
+            OpenLayers.Event.stop(e); // don't fire a mapClick
+          }
+        );
+        f.popup = popup;
+        map.addPopup(popup);
+      }
+      ,onUnselect : function(f) {
+        map.removePopup(f.popup);
+        f.popup.destroy(); 
+        f.popup = null;
+      }
     });
+    map.addControl(selectBuoyControl);
+    selectBuoyControl.activate();
+  }
+  else {
+    var layers = [lyr];
+    if (selectBuoyControl.layers) {
+      for (var j = 0; j < selectBuoyControl.layers.length; j++) {
+        layers.push(selectBuoyControl.layers[j]);
+      }
+    }
+    else {
+      layers.push(selectBuoyControl.layer);
+    }
+    selectBuoyControl.setLayer(layers);
   }
 }
 

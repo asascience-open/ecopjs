@@ -480,3 +480,14 @@ div.olControlMousePosition {
 }
 
 .olImageLoadError { display: none; }
+
+.olPopupCloseBox {
+    background: url("img/close.gif") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+}
+.olFramedCloudPopupContent {
+    overflow: auto;
+    padding: 0 3px 0 3px;
+    text-align : center;
+    font-size : 12px;
+}

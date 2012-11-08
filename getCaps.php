@@ -10,7 +10,7 @@
   $layerStack = array();
   $xml = @simplexml_load_file(
      $wms
-    .'service=WMS&key='.$_COOKIE['softwareKey']
+    .'service=WMS&key=apasametocean' // .$_COOKIE['softwareKey']
     .'&version=1.1.1&request=getcapabilities'
     .'&time='.time()
   );
@@ -30,7 +30,28 @@
       ,'maxDepth' => sprintf("%f",$l->{'DepthLayers'})
       ,'status'   => in_array(sprintf("%s",$l->{'Name'}),$defaultLayers) ? 'on' : 'off'
     );
-    if (preg_match('/_CURRENTS$/',$a['name'])) {
+    if (preg_match('/^BUOY_/',$a['name'])) {
+      // buoy names come in as BUOY_buoyName_sensorName
+      $p = explode('_',$a['name']);
+      $sensor = array_pop($p);
+      $name   = implode('_',$p);
+      if (!array_key_exists($name,$buoys)) {
+        $buoys[$name] = array(
+           'title'    => $a['abstract'].'||buoys'
+          ,'name'     => $name
+          ,'abstract' => 'No information currently available.' // $a['abstract']
+          ,'bbox'     => $a['bbox']
+          ,'status'   => in_array($name,$defaultLayers) || in_array($a['name'],$defaultLayers) ? 'on' : 'off'
+          ,'type'     => 'buoys'
+          ,'sensors'  => array()
+        );
+      }
+      array_push($buoys[$name]['sensors'],array(
+         'title' => $a['title']
+        ,'name'  => $name
+      ));
+    }
+    else if (preg_match('/_CURRENTS$/',$a['name'])) {
       $a['type']  = 'currents';
       $a['title'] .= '||'.$a['type'];
       array_push($layerStack,$a);
@@ -52,25 +73,6 @@
         array_unshift($layerStack,$a);
       }
       array_push($layers['waves'],$a);
-    }
-    else if (preg_match('/BUOY/',$a['name'])) {
-      // buoy names come in as buoyName_sensorName
-      $p = explode('_',$a['name']);
-      if (!array_key_exists($p[0],$buoys)) {
-        $buoys[$p[0]] = array(
-           'title'    => $a['abstract'].'||buoys'
-          ,'name'     => $p[0]
-          ,'abstract' => 'No information currently available.' // $a['abstract']
-          ,'bbox'     => $a['bbox']
-          ,'status'   => in_array($p[0],$defaultLayers) || in_array($a['name'],$defaultLayers) ? 'on' : 'off'
-          ,'type'     => 'buoys'
-          ,'sensors'  => array()
-        );
-      }
-      array_push($buoys[$p[0]]['sensors'],array(
-         'title' => $a['title']
-        ,'name'  => $p[1]
-      ));
     }
     else {
       $a['type']  = 'other';
