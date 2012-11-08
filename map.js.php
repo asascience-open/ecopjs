@@ -1499,6 +1499,14 @@ function addBuoy(l) {
   map.addLayer(lyr);
 
   if (!selectBuoyControl) {
+    var sensorTr = [];
+    for (var i = 0; i < f.attributes.sensors.length; i++) {
+      sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td>n/a</td><tr>');
+    }
+    var html = '<table class="obsPopup">'
+      + '<tr><th colspan=2>' + f.layer.name.split('||')[0] + '</th></tr>'
+      + sensorTr.join('')
+      + '</table>'
     selectBuoyControl = new OpenLayers.Control.SelectFeature(lyr,{
       onSelect    : function(f) {
         console.dir(f);
@@ -1507,7 +1515,7 @@ function addBuoy(l) {
            'popup'
           ,f.geometry.getBounds().getCenterLonLat()
           ,null
-          ,f.layer.name.split('||')[0]
+          ,html
           ,null
           ,true
           ,function(e) {

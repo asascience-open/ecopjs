@@ -229,6 +229,7 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
 .obsPopup th {
   font        : 11px tahoma,helvetica,sans-serif;
   font-weight : bold;
+  text-align  : center;
 }
 .obsPopup td {
   font        : 11px tahoma,helvetica,sans-serif;
