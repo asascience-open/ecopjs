@@ -1466,6 +1466,7 @@ function initMap() {
     if (new RegExp(/BUOY/).test(layerConfig.layerStack[i].name)) {
       addBuoy({
          name       : layerConfig.layerStack[i].title
+        ,layers     : layerConfig.layerStack[i].name
         ,sensors    : layerConfig.layerStack[i].sensors
         ,bbox       : layerConfig.layerStack[i].bbox
       });
@@ -1489,6 +1490,7 @@ function addBuoy(l) {
      l.name
     ,{visibility : mainStore.getAt(mainStore.find('name',l.name)).get('status') == 'on'}
   );
+  lyr.layers = l.layers;
   var f = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(l.bbox[0],l.bbox[1]).transform(proj4326,map.getProjectionObject()));
   f.attributes = {
     sensors : l.sensors
@@ -2439,12 +2441,18 @@ function saveBookmark() {
           var styles = [];
           var elevs  = [];
           for (var i = 0; i < map.layers.length; i++) {
-            // WMS layers only
-            if (map.layers[i].DEFAULT_PARAMS && map.layers[i].visibility) {
-              layers.push(map.layers[i].name);
-              var p = OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}));
-              styles.push(p['STYLES']);
-              elevs.push(p['ELEVATION']);
+            if (map.layers[i].visibility) {
+              if (map.layers[i].DEFAULT_PARAMS) {
+                layers.push(map.layers[i].name);
+                var p = OpenLayers.Util.getParameters(map.layers[i].getFullRequestString({}));
+                styles.push(p['STYLES']);
+                elevs.push(p['ELEVATION']);
+              }
+              else if (map.layers[i].layers && new RegExp(/BUOY/).test(map.layers[i].layers)) {
+                layers.push(map.layers[i].name);
+                styles.push('');
+                elevs.push('');
+              }
             }
           }
           var p = [
@@ -2627,10 +2635,12 @@ function restoreSession(s) {
   var activeLayers = {};
   for (var i = 0; i < layers.length; i++) {
     activeLayers[layers[i]] = map.getLayersByName(layers[i])[0];
-    activeLayers[layers[i]].mergeNewParams({
-      STYLES    : styles[i]
-     ,ELEVATION : elevs[i]
-    });
+    if (activeLayers[layers[i]].DEFAULT_PARAMS) {
+      activeLayers[layers[i]].mergeNewParams({
+        STYLES    : styles[i]
+       ,ELEVATION : elevs[i]
+      });
+    }
   }
   var recs = [];
   buoysStore.each(function(rec) {
