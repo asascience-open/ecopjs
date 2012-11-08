@@ -1509,7 +1509,6 @@ function addBuoy(l) {
       + '</table>'
     selectBuoyControl = new OpenLayers.Control.SelectFeature(lyr,{
       onSelect    : function(f) {
-        console.dir(f);
         selectedBuoyFeature = f;
         var popup = new OpenLayers.Popup.FramedCloud(
            'popup'
