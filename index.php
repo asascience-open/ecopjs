@@ -2,6 +2,8 @@
   ob_start();
   session_start();
 
+  $version = 0.01;
+
   date_default_timezone_set('UTC');
 
   $config = getenv('config') ? getenv('config') : 'DEFAULT';
@@ -18,9 +20,9 @@
   <head>
     <title><?php echo $title?> Explorer</title>
     <link rel="stylesheet" type="text/css" href="./js/ext-3.3.0/resources/css/ext-all.css"/>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" type="text/css" href="style.css?<?php echo $version?>"/>
     <!--[if IE]>
-      <link rel="stylesheet" type="text/css" href="style.ie.css" />
+      <link rel="stylesheet" type="text/css" href="style.ie.css<?php echo $version?>" />
     <![endif]-->
 
     <script>
