@@ -97,7 +97,7 @@
 
     foreach (array_keys($buoys) as $b) {
       sort($buoys[$b]['sensors']);
-      array_unshift($layerStack,$a);
+      array_unshift($layerStack,$buoys[$b]);
       array_push($layers['buoys'],$buoys[$b]);
     }
   }
