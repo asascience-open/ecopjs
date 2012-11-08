@@ -15,6 +15,7 @@
     .'&time='.time()
   );
   $defaultLayers = explode(',',$_COOKIE['defaultLayers']);
+  $buoys = array();
   foreach ($xml->{'Capability'}[0]->{'Layer'}[0]->{'Layer'} as $l) {
     $a = array(
        'title'    => sprintf("%s",$l->{'Title'})
@@ -52,33 +53,7 @@
       }
       array_push($layers['waves'],$a);
     }
-    else {
-      $a['type']  = 'other';
-      $a['title'] .= '||'.$a['type'];
-      array_unshift($layerStack,$a);
-      array_push($layers['other'],$a);
-    }
-  }
-
-  if ($_COOKIE['softwareKey'] == 999 || true) {
-    $buoys = array();
-    $xml = @simplexml_load_file('http://coastmap.com/ecop/wms.aspx?Request=GetCapabilities&SERVICE=WMS&key=apasametocean');
-    $defaultLayers = explode(',',$_COOKIE['defaultLayers']);
-    foreach ($xml->{'Capability'}[0]->{'Layer'}[0]->{'Layer'} as $l) {
-      $a = array(
-         'title'    => sprintf("%s",$l->{'Title'})
-        ,'name'     => sprintf("%s",$l->{'Name'})
-        ,'abstract' => sprintf("%s",$l->{'Abstract'})
-        ,'bbox'     => array(
-           sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'minx'})
-          ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'miny'})
-          ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'maxx'})
-          ,sprintf("%f",$l->{'LatLonBoundingBox'}->attributes()->{'maxy'})
-        )
-        ,'maxDepth' => sprintf("%f",$l->{'DepthLayers'})
-        ,'status'   => in_array(sprintf("%s",$l->{'Name'}),$defaultLayers) ? 'on' : 'off'
-      );
-  
+    else if (preg_match('/BUOY/',$a['name'])) {
       // buoy names come in as buoyName_sensorName
       $p = explode('_',$a['name']);
       if (!array_key_exists($p[0],$buoys)) {
@@ -97,12 +72,18 @@
         ,'name'  => $p[1]
       ));
     }
-
-    foreach (array_keys($buoys) as $b) {
-      usort($buoys[$b]['sensors'],'customSort');
-      array_unshift($layerStack,$buoys[$b]);
-      array_push($layers['buoys'],$buoys[$b]);
+    else {
+      $a['type']  = 'other';
+      $a['title'] .= '||'.$a['type'];
+      array_unshift($layerStack,$a);
+      array_push($layers['other'],$a);
     }
+  }
+
+  foreach (array_keys($buoys) as $b) {
+    usort($buoys[$b]['sensors'],'customSort');
+    array_unshift($layerStack,$buoys[$b]);
+    array_push($layers['buoys'],$buoys[$b]);
   }
 
   foreach (array_keys($layers) as $l) {
