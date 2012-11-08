@@ -65,6 +65,7 @@ var legendsStore = new Ext.data.ArrayStore({
   }}
 });
 
+var buoysStore        = new Ext.data.ArrayStore({fields : []});
 var currentsStore     = new Ext.data.ArrayStore({fields : []});
 var windsStore        = new Ext.data.ArrayStore({fields : []});
 var wavesStore        = new Ext.data.ArrayStore({fields : []});
@@ -253,7 +254,44 @@ function initMainStore() {
   mainStore.removeAll();
   for (var layerType in layerConfig.availableLayers) {
     for (var i = 0; i < layerConfig.availableLayers[layerType].length; i++) {
-      if (layerType == 'currents') {
+      if (layerType == 'buoys') {
+        if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
+          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = '';
+          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = '';
+        }
+        mainStore.add(new mainStore.recordType({
+           'type'                 : 'buoys'
+          ,'name'                 : layerConfig.availableLayers[layerType][i].title
+          ,'displayName'          : layerConfig.availableLayers[layerType][i].title
+          ,'info'                 : 'off'
+          ,'status'               : layerConfig.availableLayers[layerType][i].status
+          ,'settings'             : 'off'
+          ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
+          ,'settingsParam'        : ''
+          ,'settingsOpacity'      : 100
+          ,'settingsImageQuality' : ''
+          ,'settingsImageType'    : 'png'
+          ,'settingsPalette'      : ''
+          ,'settingsBaseStyle'    : ''
+          ,'settingsColorMap'     : ''
+          ,'settingsStriding'     : ''
+          ,'settingsBarbLabel'    : ''
+          ,'settingsTailMag'      : ''
+          ,'settingsMin'          : ''
+          ,'settingsMax'          : ''
+          ,'settingsMinMaxBounds' : ''
+          ,'settingsDepth'        : 0
+          ,'settingsMaxDepth'     : 0
+          ,'rank'                 : ''
+          ,'legend'               : ''
+          ,'timestamp'            : ''
+          ,'bbox'                 : layerConfig.availableLayers[layerType][i].bbox
+          ,'queryable'            : 'false'
+          ,'settingsLayers'       : ''
+          ,'category'             : ''
+        }));
+      }
+      else if (layerType == 'currents') {
         if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
           defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'CURRENTS_RAMP-Jet-False-1-True-0-2-Low';
           guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'CURRENTS_RAMP-Jet-False-1-True-0-2-Low';
@@ -411,6 +449,12 @@ function initMainStore() {
   });
 
   mainStore.each(function(rec) {
+    if (rec.get('type') == 'buoys') {
+      buoysStore.add(rec);
+    }
+  });
+
+  mainStore.each(function(rec) {
     if (rec.get('type') == 'currents') {
       currentsStore.add(rec);
     }
@@ -440,6 +484,46 @@ function initComponents() {
      height : 55
     ,border : false
     ,html   : '<table class="smallFont" width="100%"><tr><td><a target=_blank href="' + bannerURL + '"><img title="' + bannerTitle + '" src="' + bannerImg + '"></a></td></tr></table>'
+  });
+
+
+  var buoysSelModel = new Ext.grid.CheckboxSelectionModel({
+     header    : ''
+    ,checkOnly : true
+    ,listeners : {
+      rowdeselect : function(sm,idx,rec) {
+        map.getLayersByName(rec.get('name'))[0].setVisibility(false);
+      }
+      ,rowselect : function(sm,idx,rec) {
+        map.getLayersByName(rec.get('name'))[0].setVisibility(true);
+      }
+    }
+  });
+  var buoysGridPanel = new Ext.grid.GridPanel({
+     id               : 'buoysGridPanel'
+    ,height           : Math.min(buoysStore.getCount(),5) * 21.1 + 26 + 11 + 25
+    ,store            : buoysStore
+    ,selModel         : buoysSelModel
+    ,columns          : [
+       buoysSelModel
+      ,{id : 'status'     ,dataIndex : 'status'     ,renderer : renderLayerButton   ,width : 25}
+      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink}
+      ,{id : 'bbox'       ,dataIndex : 'bbox'       ,renderer : renderLayerCalloutButton    ,width : 20}
+    ]
+    ,hideHeaders      : true
+    ,disableSelection : true
+    ,autoExpandColumn : 'displayName'
+    ,listeners        : {viewready : function(grid) {
+      layersToSyncBbox['buoys'] = true;
+      needToInitGridPanel['buoys'] = true;
+      syncLayersToBbox(map.getExtent(),false,'buoys');
+      var sm = grid.getSelectionModel();
+      buoysStore.each(function(rec) {
+        if (rec.get('status') == 'on') {
+          sm.selectRecords([rec],true);
+        }
+      });
+    }}
   });
 
   var currentsSelModel = new Ext.grid.CheckboxSelectionModel({
@@ -644,6 +728,7 @@ function initComponents() {
            text  : 'Turn off all layers'
           ,icon  : 'img/delete.png'
           ,handler : function() {
+            buoysSelModel.clearSelections();
             currentsSelModel.clearSelections();
             windsSelModel.clearSelections();
             wavesSelModel.clearSelections();
@@ -669,6 +754,25 @@ function initComponents() {
       ]
       ,items  : [
         new Ext.form.FieldSet({
+           title : '&nbsp;Buoys&nbsp;'
+          ,id    : 'buoysFieldSet'
+          ,items : buoysGridPanel
+          ,checkboxToggle : true
+          ,collapsed      : buoysStore.getCount() == 0
+          ,hidden         : buoysStore.getCount() == 0
+          ,listeners      : {
+            collapse : function() {
+              if (buoysGridPanel.getEl()) {
+                buoysGridPanel.getSelectionModel().clearSelections();
+                Ext.getCmp('managerPanel').fireEvent('bodyresize');
+              }
+            }
+            ,expand : function() {
+              Ext.getCmp('managerPanel').fireEvent('bodyresize');
+            }
+          }
+        })
+        ,new Ext.form.FieldSet({
            title : '&nbsp;Currents&nbsp;'
           ,id    : 'currentsFieldSet'
           ,items : currentsGridPanel
@@ -763,7 +867,8 @@ function initComponents() {
           this.addListener('bodyresize',function() {
             var h = this.getHeight() - 53 - introPanel.getHeight() - 190;
             var c = {
-               'currents' : currentsStore.getCount() * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1)
+               'buoys'    : buoysStore.getCount() * (Ext.getCmp('buoysFieldSet').collapsed ? 0 : 1)
+              ,'currents' : currentsStore.getCount() * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1)
               ,'winds'    : windsStore.getCount() * (Ext.getCmp('windsFieldSet').collapsed ? 0 : 1)
               ,'waves'    : wavesStore.getCount() * (Ext.getCmp('wavesFieldSet').collapsed ? 0 : 1)
               ,'other'    : otherStore.getCount() * (Ext.getCmp('otherFieldSet').collapsed ? 0 : 1)
@@ -776,7 +881,8 @@ function initComponents() {
               hits = 10000000000000;
             }
             var targetH = {
-               'currents' : h * c['currents'] * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1) / hits
+               'buoys'    : h * c['buoys'] * (Ext.getCmp('buoysFieldSet').collapsed ? 0 : 1) / hits
+              ,'currents' : h * c['currents'] * (Ext.getCmp('currentsFieldSet').collapsed ? 0 : 1) / hits
               ,'winds'    : h * c['winds'] * (Ext.getCmp('windsFieldSet').collapsed ? 0 : 1) / hits
               ,'waves'    : h * c['waves'] * (Ext.getCmp('wavesFieldSet').collapsed ? 0 : 1) / hits
               ,'other'    : h * c['other'] * (Ext.getCmp('otherFieldSet').collapsed ? 0 : 1) / hits
@@ -2411,7 +2517,11 @@ function adminBookmarks() {
 }
 
 function restoreSession(s) {
-  var fs = Ext.getCmp('currentsFieldSet');
+  var fs = Ext.getCmp('buoysFieldSet');
+  fs.suspendEvents();
+  fs.expand();
+  fs.resumeEvents();
+  fs = Ext.getCmp('currentsFieldSet');
   fs.suspendEvents();
   fs.expand();
   fs.resumeEvents();
@@ -2451,6 +2561,13 @@ function restoreSession(s) {
     });
   }
   var recs = [];
+  buoysStore.each(function(rec) {
+    if (activeLayers[rec.get('name')]) {
+      recs.push(rec);
+    }
+  });
+  Ext.getCmp('buoysGridPanel').getSelectionModel().selectRecords(recs);
+  recs = [];
   currentsStore.each(function(rec) {
     if (activeLayers[rec.get('name')]) {
       var mainRec = mainStore.getAt(mainStore.findExact('name',rec.get('name')));

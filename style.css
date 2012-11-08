@@ -86,6 +86,22 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   background-image : url('img/blank.png');
 }
 
+#buoysGridPanel .x-grid3-row {
+  border-color   : #ffffff;
+}
+#buoysGridPanel .x-grid3-cell-inner, .x-grid3-hd-inner {
+  padding : 0px;
+}
+#buoysGridPanel .x-grid3-row-selected {
+  background-color : transparent !important;
+}
+#buoysGridPanel .x-grid3-body .x-grid3-row-selected .x-grid3-td-numberer, .x-grid3-body .x-grid3-row-selected .x-grid3-td-checker, .x-grid3-body .x-grid3-row-selected .x-grid3-td-expander {
+  background-image : url('img/blank.png');
+}
+#buoysGridPanel .x-grid3-body .x-grid3-td-checker {
+  background-image : url('img/blank.png');
+}
+
 #currentsGridPanel .x-grid3-row {
   border-color   : #ffffff;
 }

@@ -60,7 +60,7 @@
     }
   }
 
-  if ($_COOKIE['softwareKey'] == 999) {
+  if ($_COOKIE['softwareKey'] == 999 || true) {
     $buoys = array();
     $xml = @simplexml_load_file('http://coastmap.com/ecop/wms.aspx?Request=GetCapabilities&SERVICE=WMS&key=apasametocean');
     $defaultLayers = explode(',',$_COOKIE['defaultLayers']);
@@ -83,7 +83,7 @@
       $p = explode('_',$a['name']);
       if (!array_key_exists($p[0],$buoys)) {
         $buoys[$p[0]] = array(
-           'title'    => $p[0].'||buoys' // $a['abstract'].'||buoys'
+           'title'    => $a['abstract'].'||buoys'
           ,'name'     => $p[0]
           ,'abstract' => 'No information currently available.' // $a['abstract']
           ,'bbox'     => $a['bbox']
@@ -92,11 +92,14 @@
           ,'sensors'  => array()
         );
       }
-      array_push($buoys[$p[0]]['sensors'],$p[1]);
+      array_push($buoys[$p[0]]['sensors'],array(
+         'title' => $a['title']
+        ,'name'  => $p[1]
+      ));
     }
 
     foreach (array_keys($buoys) as $b) {
-      sort($buoys[$b]['sensors']);
+      usort($buoys[$b]['sensors'],'customSort');
       array_unshift($layerStack,$buoys[$b]);
       array_push($layers['buoys'],$buoys[$b]);
     }
