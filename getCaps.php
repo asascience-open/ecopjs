@@ -10,7 +10,7 @@
   $layerStack = array();
   $xml = @simplexml_load_file(
      $wms
-    .'service=WMS&key=apasametocean' // .$_COOKIE['softwareKey']
+    .'service=WMS&key='.$_COOKIE['softwareKey']
     .'&version=1.1.1&request=getcapabilities'
     .'&time='.time()
   );

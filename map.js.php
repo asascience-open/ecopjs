@@ -1905,7 +1905,12 @@ function setLayerInfo(layerName,on) {
 
 function zoomToBbox(bbox) {
   var p = bbox.split(',');
-  map.zoomToExtent(new OpenLayers.Bounds(p[0],p[1],p[2],p[3]).transform(proj4326,map.getProjectionObject()));
+  if (p[0] == p[2] && p[1] == p[3]) {
+    map.setCenter(new OpenLayers.LonLat(p[0],p[1]).transform(proj4326,map.getProjectionObject()),map.getZoom() < 8 ? 8 : map.getZoom());
+  }
+  else {
+    map.zoomToExtent(new OpenLayers.Bounds(p[0],p[1],p[2],p[3]).transform(proj4326,map.getProjectionObject()));
+  }
 }
 
 function showLayerInfo(layerName) {
