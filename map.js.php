@@ -1469,6 +1469,7 @@ function initMap() {
         ,layers     : layerConfig.layerStack[i].name
         ,sensors    : layerConfig.layerStack[i].sensors
         ,bbox       : layerConfig.layerStack[i].bbox
+        ,url        : 'http://coastmap.com/ecop/wms.aspx?'
       });
     }
     else {
@@ -1498,10 +1499,21 @@ function addBuoy(l) {
   lyr.addFeatures(f);
   map.addLayer(lyr);
 
+  var pix = map.getPixelFromLonLat(new OpenLayers.LonLat(f.geometry.x,f.geometry.y));
+
   if (!selectBuoyControl) {
     var sensorTr = [];
     for (var i = 0; i < f.attributes.sensors.length; i++) {
-      sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td>n/a</td><tr>');
+      var gfi = l.url
+        + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG:3857&EXCEPTIONS=application/vnd.ogc.se_xml&INFO_FORMAT=text/xml&FORMAT=image/png&TRANSPARENT=TRUE&STYLES='
+        + '&BBOX=' + map.getExtent().toBBOX()
+        + '&X=' + pix.x
+        + '&Y=' + pix.y
+        + '&WIDTH=' + map.size.w
+        + '&HEIGHT=' + map.size.h
+        + '&QUERY_LAYERS=' + f.attributes.sensors[i].name
+        + '&LAYERS=' + f.attributes.sensors[i].name ;
+      sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><a target=_blank href="' + gfi + '">GFI</a></td><tr>');
     }
     var html = '<table class="obsPopup">'
       + '<tr><th colspan=2>' + f.layer.name.split('||')[0] + '</th></tr>'
@@ -1711,28 +1723,30 @@ function mapClick(xy,doWMS,chartIt) {
   lyrQueryPts.removeFeatures(lyrQueryPts.features);
 
   var modelQueryLyr = map.getLayersByName(Ext.getCmp('chartLayerCombo').getValue())[0];
-  var modelQueryRec = mainStore.getAt(mainStore.find('name',modelQueryLyr.name));
-  if ((modelQueryLyr && modelQueryLyr.visibility && modelQueryLyr.DEFAULT_PARAMS)) {
-    var lonLat = map.getLonLatFromPixel(xy);
-    var f = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(lonLat.lon,lonLat.lat));
-    f.attributes.img = 'Delete-icon.png';
-    lyrQueryPts.addFeatures(f);
-  }
-
-  var queryLyrs = [modelQueryLyr];
-  if (doWMS && modelQueryLyr && modelQueryLyr.visibility && modelQueryLyr.DEFAULT_PARAMS) {
-    // now that we've established our pivot point, see if there are any other active layers to drill into based on the category
-    var displayName = mainStore.getAt(mainStore.find('name',modelQueryLyr.name)).get('displayName');
-    var lyrType = displayName.substr(displayName.lastIndexOf(' ') + 1);
-    Ext.getCmp('chartLayerCombo').getStore().each(function(rec) {
-      if (rec.get('name') != modelQueryLyr.name && rec.get('category') == modelQueryRec.get('category')) {
-        var lyr = map.getLayersByName(rec.get('name'))[0];
-        if (lyr && lyr.visibility && lyr.DEFAULT_PARAMS) {
-          queryLyrs.push(lyr);
+  if (modelQueryLyr) {
+    var modelQueryRec = mainStore.getAt(mainStore.find('name',modelQueryLyr.name));
+    if ((modelQueryLyr && modelQueryLyr.visibility && modelQueryLyr.DEFAULT_PARAMS)) {
+      var lonLat = map.getLonLatFromPixel(xy);
+      var f = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(lonLat.lon,lonLat.lat));
+      f.attributes.img = 'Delete-icon.png';
+      lyrQueryPts.addFeatures(f);
+    }
+  
+    var queryLyrs = [modelQueryLyr];
+    if (doWMS && modelQueryLyr && modelQueryLyr.visibility && modelQueryLyr.DEFAULT_PARAMS) {
+      // now that we've established our pivot point, see if there are any other active layers to drill into based on the category
+      var displayName = mainStore.getAt(mainStore.find('name',modelQueryLyr.name)).get('displayName');
+      var lyrType = displayName.substr(displayName.lastIndexOf(' ') + 1);
+      Ext.getCmp('chartLayerCombo').getStore().each(function(rec) {
+        if (rec.get('name') != modelQueryLyr.name && rec.get('category') == modelQueryRec.get('category')) {
+          var lyr = map.getLayersByName(rec.get('name'))[0];
+          if (lyr && lyr.visibility && lyr.DEFAULT_PARAMS) {
+            queryLyrs.push(lyr);
+          }
         }
-      }
-    });
-    return queryWMS(xy,queryLyrs,chartIt);
+      });
+      return queryWMS(xy,queryLyrs,chartIt);
+    }
   }
 }
 

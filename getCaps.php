@@ -48,7 +48,7 @@
       }
       array_push($buoys[$name]['sensors'],array(
          'title' => $a['title']
-        ,'name'  => $name
+        ,'name'  => $a['name']
       ));
     }
     else if (preg_match('/_CURRENTS$/',$a['name'])) {
