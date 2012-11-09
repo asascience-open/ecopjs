@@ -1512,6 +1512,7 @@ function addBuoy(l) {
         }
         var html = '<table class="obsPopup">'
           + '<tr><th colspan=3>' + f.layer.name.split('||')[0] + '</th></tr>'
+          + '<tr><td id="' + popupId + '.timestamp" colspan=3 align=center>&nbsp;</td></tr>'
           + sensorTr.join('')
           + '</table>'
         selectedBuoyFeature = f;
@@ -1779,6 +1780,7 @@ function queryBuoy(title,url,name,x,y,popupId) {
      url      : 'getFeatureInfo.php?' + gfi + '&TIME=' + d.getUTCFullYear() + '-' + String.leftPad(d.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d.getUTCDate(),2,'0') + 'T' + String.leftPad(d.getUTCHours(),2,'0') + ':' + String.leftPad(d.getUTCMinutes(),2,'0') + '&tz=' + new Date().getTimezoneOffset() + '&popupId=' + popupId
     ,callback : function(r) {
       var json = new OpenLayers.Format.JSON().read(r.responseText);
+      var timestampEl = document.getElementById(json.popupId + '.timestamp');
       var el = document.getElementById(json.popupId + '.spinner.' + json.layers);
       if (el) {
         el.src = 'img/blank.png';
@@ -1790,10 +1792,16 @@ function queryBuoy(title,url,name,x,y,popupId) {
             if (json.d[i].length > 0) {
               el.innerHTML = (Math.round(json.d[i][0] * 100) / 100) + ' ' + json.u[i];
             }
+            if (timestampEl && new RegExp(/&nbsp;|no data for target time/).test(timestampEl.innerHTML)) {
+              timestampEl.innerHTML = new Date(json.t[0]).format("UTC:yyyy-mm-dd HH:MM Z");;
+            }
           }
         }
         if (el.innerHTML == '') {
           el.innerHTML = 'no data for target time';
+        }
+        if (timestampEl && timestampEl.innerHTML == '&nbsp;') {
+          timestampEl.innerHTML = 'no data for target time';
         }
       }
     }
