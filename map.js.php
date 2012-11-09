@@ -1761,7 +1761,11 @@ function queryBuoy(url,name,x,y,popupId) {
     + '&TIME=' + d.getUTCFullYear() + '-' + String.leftPad(d.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d.getUTCDate(),2,'0') + 'T' + String.leftPad(d.getUTCHours(),2,'0') + ':' + String.leftPad(d.getUTCMinutes(),2,'0');
 
   if (!popupId) {
-    alert(gfi);
+    makeChart('model',[{
+       url : 'getFeatureInfo.php?' + gfi + '&tz=' + new Date().getTimezoneOffset()
+      ,title : 'foo'
+      ,type  : 'obs'
+    }]);
     return;
   }
 
