@@ -2,7 +2,7 @@
   ob_start();
   session_start();
 
-  $version = 0.01;
+  $version = 0.02;
 
   date_default_timezone_set('UTC');
 
