@@ -1523,6 +1523,7 @@ function addBuoy(l) {
           ,true
           ,function(e) {
             selectBuoyControl.unselect(selectedBuoyFeature);
+            selectedBuoyFeature = false;
             OpenLayers.Event.stop(e); // don't fire a mapClick
           }
         );
@@ -1774,7 +1775,7 @@ function queryBuoy(url,name,x,y,popupId) {
       }
       el = document.getElementById(json.popupId+ '.value.' + json.layers);
       if (el) {
-        if (!json.error && json.d && json.u) {
+        if (!json.error && json.t && json.t.length > 0) {
           for (var i in json.u) {
             if (json.d[i].length > 0) {
               el.innerHTML = (Math.round(json.d[i][0] * 100) / 100) + ' ' + json.u[i];
@@ -1782,7 +1783,7 @@ function queryBuoy(url,name,x,y,popupId) {
           }
         }
         if (el.innerHTML == '') {
-          el.innerHTML = 'no data';
+          el.innerHTML = 'no data for target time';
         }
       }
     }
@@ -2456,6 +2457,11 @@ function setMapTime() {
     dp.suspendEvents();
     dp.setValue(new Date(dNow.getTime() + dNow.getTimezoneOffset() * 60000));
     dp.resumeEvents();
+  }
+
+  if (selectedBuoyFeature) {
+    selectBuoyControl.unselect(selectedBuoyFeature);
+    selectBuoyControl.select(selectedBuoyFeature);
   }
 }
 
