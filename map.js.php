@@ -1507,7 +1507,7 @@ function addBuoy(l) {
         var sensorTr = [];
         var popupId  = Ext.id();
         for (var i = 0; i < f.attributes.sensors.length; i++) {
-          sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><img id="' + popupId + '.spinner.' + f.attributes.sensors[i].name + '" width=16 height=16 src="img/loading.gif"></td><td style="text-align:right"><a id="' + popupId + '.value.' + f.attributes.sensors[i].name + '" href="javascript:queryBuoy(\'' + f.attributes.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')"></a></td><tr>');
+          sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><img id="' + popupId + '.spinner.' + f.attributes.sensors[i].name + '" width=16 height=16 src="img/loading.gif"></td><td style="text-align:right"><a id="' + popupId + '.value.' + f.attributes.sensors[i].name + '" href="javascript:queryBuoy(\'' + f.layer.name.split('||')[0] + '\',\'' + f.attributes.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')"></a></td><tr>');
         }
         var html = '<table class="obsPopup">'
           + '<tr><th colspan=3>' + f.layer.name.split('||')[0] + '</th></tr>'
@@ -1531,7 +1531,7 @@ function addBuoy(l) {
         f.popup = popup;
         map.addPopup(popup);
         for (var i = 0; i < f.attributes.sensors.length; i++) {
-          queryBuoy(f.attributes.url,f.attributes.sensors[i].name,pix.x,pix.y,popupId);
+          queryBuoy(f.layer.name.split('||')[0],f.attributes.url,f.attributes.sensors[i].name,pix.x,pix.y,popupId);
         }
       }
       ,onUnselect : function(f) {
@@ -1747,8 +1747,7 @@ function mapClick(xy,doWMS,chartIt) {
   }
 }
 
-function queryBuoy(url,name,x,y,popupId) {
-  var d = dNow < new Date() ? dNow : new Date();
+function queryBuoy(title,url,name,x,y,popupId) {
   var gfi = url
     + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG:3857&EXCEPTIONS=application/vnd.ogc.se_xml&INFO_FORMAT=text/xml&FORMAT=image/png&TRANSPARENT=TRUE&STYLES='
     + '&BBOX=' + map.getExtent().toBBOX()
@@ -1757,20 +1756,25 @@ function queryBuoy(url,name,x,y,popupId) {
     + '&WIDTH=' + map.size.w
     + '&HEIGHT=' + map.size.h
     + '&QUERY_LAYERS=' + name
-    + '&LAYERS=' + name
-    + '&TIME=' + d.getUTCFullYear() + '-' + String.leftPad(d.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d.getUTCDate(),2,'0') + 'T' + String.leftPad(d.getUTCHours(),2,'0') + ':' + String.leftPad(d.getUTCMinutes(),2,'0');
+    + '&LAYERS=' + name;
 
+  // no popupId passed means we want a full timeseries
   if (!popupId) {
+    var d0 = new Date(dNow.getTime() - 2 * 24 * 3600 * 1000);
+    var d1 = new Date(dNow.getTime() + 2 * 24 * 3600 * 1000);
+    var timeParam = '&TIME=' + d0.getUTCFullYear() + '-' + String.leftPad(d0.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d0.getUTCDate(),2,'0') + 'T' + String.leftPad(d0.getUTCHours(),2,'0') + ':' + String.leftPad(d0.getUTCMinutes(),2,'0') + '/' + d1.getUTCFullYear() + '-' + String.leftPad(d1.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d1.getUTCDate(),2,'0') + 'T' + String.leftPad(d1.getUTCHours(),2,'0') + ':' + String.leftPad(d1.getUTCMinutes(),2,'0');
+    var mapTime = '&mapTime=' + (new Date(dNow.getTime() - new Date().getTimezoneOffset() * 60000) / 1000);
     makeChart('model',[{
-       url : 'getFeatureInfo.php?' + gfi + '&tz=' + new Date().getTimezoneOffset()
-      ,title : 'foo'
+       url   : 'getFeatureInfo.php?' + gfi + timeParam + '&tz=' + new Date().getTimezoneOffset() + mapTime
+      ,title : title
       ,type  : 'obs'
     }]);
     return;
   }
 
+  var d = dNow < new Date() ? dNow : new Date();
   OpenLayers.Request.GET({
-     url      : 'getFeatureInfo.php?' + gfi + '&tz=' + new Date().getTimezoneOffset() + '&popupId=' + popupId
+     url      : 'getFeatureInfo.php?' + gfi + '&TIME=' + d.getUTCFullYear() + '-' + String.leftPad(d.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d.getUTCDate(),2,'0') + 'T' + String.leftPad(d.getUTCHours(),2,'0') + ':' + String.leftPad(d.getUTCMinutes(),2,'0') + '&tz=' + new Date().getTimezoneOffset() + '&popupId=' + popupId
     ,callback : function(r) {
       var json = new OpenLayers.Format.JSON().read(r.responseText);
       var el = document.getElementById(json.popupId + '.spinner.' + json.layers);
