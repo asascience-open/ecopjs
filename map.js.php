@@ -159,14 +159,6 @@ var dNow = new Date();
 dNow.setUTCMinutes(0);
 dNow.setUTCSeconds(0);
 dNow.setUTCMilliseconds(0);
-var dNow12Hours = new Date(dNow.getTime());
-dNow12Hours.setUTCHours(12);
-if (dNow.getHours() >= 12) {
-  dNow.setUTCHours(12);
-}
-else {
-  dNow.setUTCHours(0);
-}
 
 var lastMapClick = {
    layer : ''
@@ -924,7 +916,8 @@ function initComponents() {
                 ,title     : 'Map date & time'
                 ,items     : [{
                    id    : 'mapTime'
-                  ,text  : dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + ' ' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00 UTC'
+                  // ,text  : dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + ' ' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00 UTC'
+                  ,text  : dNow.format("yyyy-mm-dd HH:MM Z")
                   ,width : 135
                 }]
               }
@@ -1793,7 +1786,7 @@ function queryBuoy(title,url,name,x,y,popupId) {
               el.innerHTML = (Math.round(json.d[i][0] * 100) / 100) + ' ' + json.u[i];
             }
             if (timestampEl && new RegExp(/&nbsp;|no data for target time/).test(timestampEl.innerHTML)) {
-              timestampEl.innerHTML = new Date(json.t[0]).format("UTC:yyyy-mm-dd HH:MM Z");;
+              timestampEl.innerHTML = new Date(json.t[0]).format("yyyy-mm-dd HH:MM Z");
             }
           }
         }
@@ -2454,7 +2447,8 @@ function restoreDefaultStyles(l,items,id) {
 }
 
 function setMapTime() {
-  Ext.getCmp('mapTime').setText(dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + ' ' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00 UTC');
+  // Ext.getCmp('mapTime').setText(dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + ' ' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00 UTC');
+  Ext.getCmp('mapTime').setText(dNow.format("yyyy-mm-dd HH:MM Z"));
   var dStr = dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + 'T' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00';
   for (var i = 0; i < map.layers.length; i++) {
     // WMS layers only
