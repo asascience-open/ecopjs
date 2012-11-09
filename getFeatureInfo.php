@@ -53,5 +53,8 @@
     }
   }
 
+  $data['popupId'] = $_REQUEST['popupId'];
+  $data['layers']  = $_REQUEST['LAYERS'];
+
   echo json_encode($data);
 ?>
