@@ -1184,7 +1184,7 @@ function initComponents() {
                       ,{
                          xaxis     : {mode  : "time"}
                         ,crosshair : {mode  : 'x'   }
-                        ,grid      : {backgroundColor : {colors : ['#fff','#eee']},borderWidth : 1,borderColor : '#99BBE8',hoverable : true}
+                        ,grid      : {backgroundColor : {colors : ['#fff','#eee']},borderWidth : 1,borderColor : '#99BBE8',hoverable : true,markings : [{color : '#0000ff',lineWidth : 2,xaxis : {from : dNow.getTime(),to : dNow.getTime()}}]}
                         ,zoom      : {interactive : false}
                         ,pan       : {interactive : false}
                         ,legend    : {backgroundOpacity : 0.3}
@@ -1214,7 +1214,8 @@ function initComponents() {
                         }
                       }
                     }
-                    if (chartData[0].nowIdx != '' && chartData[0].data[chartData[0].nowIdx]) {
+                    // no longer plotting now on the chart
+                    if (false && chartData[0].nowIdx != '' && chartData[0].data[chartData[0].nowIdx]) {
                       var imageSize = 16;
                       var o = p.pointOffset({x : chartData[0].data[chartData[0].nowIdx][0],y : chartData[0].data[chartData[0].nowIdx][1]});
                       $('#tsResults').prepend('<div class="dir" style="position:absolute;left:' + (o.left-imageSize/2) + 'px;top:' + (o.top-(imageSize/2)) + 'px;background-image:url(\'img/asterisk_orange.png\');width:' + imageSize + 'px;height:' + imageSize + 'px;"></div>');
@@ -1764,6 +1765,7 @@ function queryBuoy(title,url,name,x,y,popupId) {
     var d1 = new Date(dNow.getTime() + 2 * 24 * 3600 * 1000);
     var timeParam = '&TIME=' + d0.getUTCFullYear() + '-' + String.leftPad(d0.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d0.getUTCDate(),2,'0') + 'T' + String.leftPad(d0.getUTCHours(),2,'0') + ':' + String.leftPad(d0.getUTCMinutes(),2,'0') + '/' + d1.getUTCFullYear() + '-' + String.leftPad(d1.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(d1.getUTCDate(),2,'0') + 'T' + String.leftPad(d1.getUTCHours(),2,'0') + ':' + String.leftPad(d1.getUTCMinutes(),2,'0');
     var mapTime = '&mapTime=' + (new Date(dNow.getTime() - new Date().getTimezoneOffset() * 60000) / 1000);
+    graphLoadstartMask();
     makeChart('model',[{
        url   : 'getFeatureInfo.php?' + gfi + timeParam + '&tz=' + new Date().getTimezoneOffset() + mapTime
       ,title : title
