@@ -1494,24 +1494,25 @@ function addBuoy(l) {
   lyr.layers = l.layers;
   var f = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(l.bbox[0],l.bbox[1]).transform(proj4326,map.getProjectionObject()));
   f.attributes = {
-    sensors : l.sensors
+     url     : l.url
+    ,sensors : l.sensors
   }
   lyr.addFeatures(f);
   map.addLayer(lyr);
 
-  var pix = map.getPixelFromLonLat(new OpenLayers.LonLat(f.geometry.x,f.geometry.y));
-
   if (!selectBuoyControl) {
-    var sensorTr = [];
-    for (var i = 0; i < f.attributes.sensors.length; i++) {
-      sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><a href="javascript:queryBuoy(\'' + l.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')">GFI</a></td><tr>');
-    }
-    var html = '<table class="obsPopup">'
-      + '<tr><th colspan=2>' + f.layer.name.split('||')[0] + '</th></tr>'
-      + sensorTr.join('')
-      + '</table>'
     selectBuoyControl = new OpenLayers.Control.SelectFeature(lyr,{
       onSelect    : function(f) {
+        var pix = map.getPixelFromLonLat(new OpenLayers.LonLat(f.geometry.x,f.geometry.y));
+        var sensorTr = [];
+        var popupId  = Ext.id();
+        for (var i = 0; i < f.attributes.sensors.length; i++) {
+          sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><img id="' + popupId + '.spinner.' + f.attributes.sensors[i].name + '" width=16 height=16 src="img/loading.gif"></td><td><a id="' + popupId + '.value.' + f.attributes.sensors[i].name + '" href="javascript:queryBuoy(\'' + f.attributes.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')"></a></td><tr>');
+        }
+        var html = '<table class="obsPopup">'
+          + '<tr><th colspan=3>' + f.layer.name.split('||')[0] + '</th></tr>'
+          + sensorTr.join('')
+          + '</table>'
         selectedBuoyFeature = f;
         var popup = new OpenLayers.Popup.FramedCloud(
            'popup'
@@ -1525,8 +1526,21 @@ function addBuoy(l) {
             OpenLayers.Event.stop(e); // don't fire a mapClick
           }
         );
+        popup.id = popupId;
         f.popup = popup;
         map.addPopup(popup);
+        Ext.defer(function() {
+          for (var i = 0; i < f.attributes.sensors.length; i++) {
+            var el = document.getElementById(f.popup.id + '.spinner.' + f.attributes.sensors[i].name);
+            if (el) {
+              el.src = 'img/blank.png';
+            }
+            el = document.getElementById(f.popup.id + '.value.' + f.attributes.sensors[i].name);
+            if (el) {
+              el.innerHTML = 'foo';
+            }
+          }
+        },1000);
       }
       ,onUnselect : function(f) {
         map.removePopup(f.popup);
