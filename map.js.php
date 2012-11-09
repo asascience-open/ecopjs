@@ -1184,7 +1184,7 @@ function initComponents() {
                       ,{
                          xaxis     : {mode  : "time"}
                         ,crosshair : {mode  : 'x'   }
-                        ,grid      : {backgroundColor : {colors : ['#fff','#eee']},borderWidth : 1,borderColor : '#99BBE8',hoverable : true,markings : [{color : '#0000ff',lineWidth : 2,xaxis : {from : dNow.getTime(),to : dNow.getTime()}}]}
+                        ,grid      : {backgroundColor : {colors : ['#fff','#eee']},borderWidth : 1,borderColor : '#99BBE8',hoverable : true,markings : [{color : '#0000ff',lineWidth : 2,xaxis : {from : dNow.getTime() - new Date().getTimezoneOffset() * 60000,to : dNow.getTime() - new Date().getTimezoneOffset() * 60000}}]}
                         ,zoom      : {interactive : false}
                         ,pan       : {interactive : false}
                         ,legend    : {backgroundOpacity : 0.3}
