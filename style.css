@@ -235,6 +235,20 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   font        : 11px tahoma,helvetica,sans-serif;
 }
 
+.buoyPopup {
+  background : white;
+  padding    : 6px;
+  width      : 225px;
+}
+.buoyPopup th {
+  font        : 11px tahoma,helvetica,sans-serif;
+  font-weight : bold;
+  text-align  : center;
+}
+.buoyPopup td {
+  font        : 11px tahoma,helvetica,sans-serif;
+}
+
 #wwaPopup table {
   width : 385px;
 }
