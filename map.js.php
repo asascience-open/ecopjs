@@ -1522,6 +1522,8 @@ function addBuoy(l) {
             OpenLayers.Event.stop(e); // don't fire a mapClick
           }
         );
+        // don't pan but DO allow it to resize itself
+        popup.panIntoView = function() {return}
         popup.id = popupId;
         f.popup = popup;
         map.addPopup(popup);
