@@ -214,13 +214,6 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
   border : 1px solid #99BBE8;
 }
 
-#obsPopup table {
-  width : 310px;
-}
-#obsPopup td {
-  vertical-align : top;
-}
-
 .obsPopup {
   background : white;
   padding    : 6px;

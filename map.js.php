@@ -11,7 +11,7 @@
   )).";\n";
 ?>
 
-var defaultBasemap = 'OpenStreetMap';
+var defaultBasemap = '<?php echo $_COOKIE['defaultBasemap']?>';
 
 var selectBuoyControl;
 var selectedBuoyFeature;
@@ -288,8 +288,8 @@ function initMainStore() {
       }
       else if (layerType == 'currents') {
         if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
-          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'CURRENTS_RAMP-Jet-False-1-True-0-2-Low';
-          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'CURRENTS_RAMP-Jet-False-1-True-0-2-Low';
+          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'CURRENTS_RAMP-Jet-False-1-True-0-2-<?php echo $_COOKIE['imageRes']?>';
+          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'CURRENTS_RAMP-Jet-False-1-True-0-2-<?php echo $_COOKIE['imageRes']?>';
         }
         mainStore.add(new mainStore.recordType({
            'type'                 : 'currents'
@@ -325,8 +325,8 @@ function initMainStore() {
       }
       else if (layerType == 'winds') {
         if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
-          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'WINDS_VERY_SPARSE_GRADIENT-False-1-0-45-Low';
-          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'WINDS_VERY_SPARSE_GRADIENT-False-1-0-45-Low';
+          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'WINDS_VERY_SPARSE_GRADIENT-False-1-0-45-<?php echo $_COOKIE['imageRes']?>';
+          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'WINDS_VERY_SPARSE_GRADIENT-False-1-0-45-<?php echo $_COOKIE['imageRes']?>';
         }
         mainStore.add(new mainStore.recordType({
            'type'                 : 'winds'

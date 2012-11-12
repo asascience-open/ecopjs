@@ -37,6 +37,8 @@ function confirmUser($username,$password,$url)
       setcookie("bannerImg"     ,$xml->{'bannerImg'});
       setcookie("bannerURL"     ,$xml->{'bannerURL'});
       setcookie("bannerTitle"   ,$xml->{'bannerTitle'});
+      setcookie("defaultBasemap",$xml->{'defaultMap'});
+      setcookie("imageRes"      ,$xml->{'imageRes'});
       setcookie("userName"      ,$username);
       if (isset($xml->{'expirationDate'})) {
         $t = new DateTime(sprintf("%s",$xml->{'expirationDate'}));
