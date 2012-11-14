@@ -22,7 +22,7 @@
     <link rel="stylesheet" type="text/css" href="./js/ext-3.3.0/resources/css/ext-all.css"/>
     <link rel="stylesheet" type="text/css" href="style.css?<?php echo $version?>"/>
     <!--[if IE]>
-      <link rel="stylesheet" type="text/css" href="style.ie.css<?php echo $version?>" />
+      <link rel="stylesheet" type="text/css" href="style.ie.css?<?php echo $version?>" />
     <![endif]-->
 
     <script>
