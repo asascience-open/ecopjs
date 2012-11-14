@@ -231,8 +231,8 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
 .buoyPopup {
   background : white;
   padding    : 6px;
-  width      : 225px;
 }
+
 .buoyPopup th {
   font        : 11px tahoma,helvetica,sans-serif;
   font-weight : bold;
@@ -240,6 +240,17 @@ div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy {
 }
 .buoyPopup td {
   font        : 11px tahoma,helvetica,sans-serif;
+}
+
+#sensorData {
+  display: block;
+  height: 100px;
+  overflow-y: scroll;
+  border : 1px solid #E7E7E7;
+}
+.sensorData {
+  font  : 11px tahoma,helvetica,sans-serif;
+  width : 110px;
 }
 
 #wwaPopup table {
@@ -498,4 +509,8 @@ div.olControlMousePosition {
     padding: 0 3px 0 3px;
     text-align : center;
     font-size : 12px;
+}
+
+#popup_ContentDiv {
+  left : 18px !important;
 }

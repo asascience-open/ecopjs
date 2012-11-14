@@ -1501,12 +1501,14 @@ function addBuoy(l) {
         var sensorTr = [];
         var popupId  = Ext.id();
         for (var i = 0; i < f.attributes.sensors.length; i++) {
-          sensorTr.push('<tr><td>' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><img id="' + popupId + '.spinner.' + f.attributes.sensors[i].name + '" width=16 height=16 src="img/loading.gif"></td><td style="text-align:right"><a id="' + popupId + '.value.' + f.attributes.sensors[i].name + '" href="javascript:queryBuoy(\'' + f.layer.name.split('||')[0] + '\',\'' + f.attributes.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')"></a></td><tr>');
+          sensorTr.push('<tr><td class="sensorData">' + f.attributes.sensors[i].title.replace(f.layer.name.split('||')[0] + ' ','') + '</td><td><img id="' + popupId + '.spinner.' + f.attributes.sensors[i].name + '" width=16 height=16 src="img/loading.gif"></td><td class="sensorData" style="text-align:right"><a id="' + popupId + '.value.' + f.attributes.sensors[i].name + '" href="javascript:queryBuoy(\'' + f.layer.name.split('||')[0] + '\',\'' + f.attributes.url + '\',\'' + f.attributes.sensors[i].name + '\',' + pix.x + ',' + pix.y + ')"></a></td><tr>');
         }
         var html = '<table class="buoyPopup">'
-          + '<tr><th colspan=3>' + f.layer.name.split('||')[0] + '</th></tr>'
-          + '<tr><td id="' + popupId + '.timestamp" colspan=3 align=center>&nbsp;</td></tr>'
-          + sensorTr.join('')
+          + '<tr><th>' + f.layer.name.split('||')[0] + '</th></tr>'
+          + '<tr><td id="' + popupId + '.timestamp" align=center>&nbsp;</td></tr>'
+          + '<tr><td style="width:100%"><table id="sensorData">'
+            + sensorTr.join('')
+          + '</table></td></tr>'
           + '</table>'
         selectedBuoyFeature = f;
         var popup = new OpenLayers.Popup.FramedCloud(
@@ -1522,8 +1524,6 @@ function addBuoy(l) {
             OpenLayers.Event.stop(e); // don't fire a mapClick
           }
         );
-        // don't pan but DO allow it to resize itself
-        popup.panIntoView = function() {return}
         popup.id = popupId;
         f.popup = popup;
         map.addPopup(popup);
