@@ -1788,7 +1788,7 @@ function queryBuoy(title,url,name,x,y,popupId) {
               el.innerHTML = (Math.round(json.d[i][0] * 100) / 100) + ' ' + json.u[i];
             }
             if (timestampEl && new RegExp(/&nbsp;|no data for target time/).test(timestampEl.innerHTML)) {
-              timestampEl.innerHTML = new Date(json.t[0]).format("yyyy-mm-dd HH:MM Z");
+              timestampEl.innerHTML = new Date(json.t[0] + new Date().getTimezoneOffset() * 60000).format("yyyy-mm-dd HH:MM Z");
             }
           }
         }
