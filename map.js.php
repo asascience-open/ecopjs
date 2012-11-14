@@ -1413,7 +1413,8 @@ function initMap() {
   });
 
   map.setBaseLayer(map.getLayersByName(defaultBasemap)[0]);
-  map.zoomToExtent(new OpenLayers.Bounds(<?php echo $_COOKIE['bounds']?>).transform(proj4326,proj900913));
+  // IE having trouble zooming to extent w/o a delay
+  Ext.defer(function(){map.zoomToExtent(new OpenLayers.Bounds(<?php echo $_COOKIE['bounds']?>).transform(proj4326,proj900913))},10);
 
   var navControl = new OpenLayers.Control.NavToolbar();
   map.addControl(navControl);
