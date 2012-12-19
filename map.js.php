@@ -1827,6 +1827,7 @@ function queryWMS(xy,a,chartIt) {
       ,FEATURE_COUNT : 1
       ,WIDTH         : map.size.w
       ,HEIGHT        : map.size.h
+      ,TIME          : makeTimeParam(new Date(dNow.getTime() - 12 * 3600 * 1000)) + '/' + makeTimeParam(new Date(dNow.getTime() + 36 * 3600 * 1000))
     };
     targets.push({url : a[i].getFullRequestString(paramNew,'getFeatureInfo.php?' + a[i].url + '&tz=' + new Date().getTimezoneOffset() + mapTime),title : mainStore.getAt(mainStore.find('name',a[i].name)).get('displayName'),type : 'model'});
   }
@@ -2778,4 +2779,14 @@ function restoreSession(s) {
     }
   });
   Ext.getCmp('otherGridPanel').getSelectionModel().selectRecords(recs);
+}
+
+function leftPad(value,padding) {
+  var zeroes = "0";
+  for (var i = 0; i < padding; i++) { zeroes += "0"; }
+  return (zeroes + value).slice(padding * -1);
+}
+
+function makeTimeParam(d) {
+  return d.getUTCFullYear() + '-' + leftPad(d.getUTCMonth() + 1,2) + '-' + leftPad(d.getUTCDate(),2) + 'T' + leftPad(d.getUTCHours(),2) + ':00:00'
 }
