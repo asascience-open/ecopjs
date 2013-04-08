@@ -1571,7 +1571,8 @@ function addWMS(l) {
       ,singleTile  : l.singleTile
       ,visibility  : mainStore.getAt(mainStore.find('name',l.name)).get('status') == 'on'
       ,opacity     : mainStore.getAt(mainStore.find('name',l.name)).get('settingsOpacity') / 100
-      ,wrapDateLine : true
+      ,wrapDateLine     : true
+      ,transitionEffect : 'resize'
     }
   );
   addLayer(lyr,true);
