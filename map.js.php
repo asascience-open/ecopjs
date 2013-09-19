@@ -546,6 +546,7 @@ function initComponents() {
     ]
     ,hideHeaders      : true
     ,disableSelection : true
+    ,viewConfig       : {forceFit : true}
     ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['currents'] = true;
@@ -580,12 +581,13 @@ function initComponents() {
     ,columns          : [
        windsSelModel
       ,{id : 'status'     ,dataIndex : 'status'     ,renderer : renderLayerButton   ,width : 25}
-      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink ,width : 167}
+      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink}
       ,{id : 'bbox'       ,dataIndex : 'bbox'       ,renderer : renderLayerCalloutButton    ,width : 20}
     ]
     ,hideHeaders      : true
     ,disableSelection : true
-    ,autoExpandColumn : 'displayName'
+    ,viewConfig       : {forceFit : true}
+    // ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['winds'] = true;
       needToInitGridPanel['winds'] = true;
@@ -619,12 +621,13 @@ function initComponents() {
     ,columns          : [
        wavesSelModel
       ,{id : 'status'     ,dataIndex : 'status'     ,renderer : renderLayerButton   ,width : 25}
-      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink ,width : 167}
+      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink}
       ,{id : 'bbox'       ,dataIndex : 'bbox'       ,renderer : renderLayerCalloutButton    ,width : 20}
     ]
     ,hideHeaders      : true
     ,disableSelection : true
-    ,autoExpandColumn : 'displayName'
+    ,viewConfig       : {forceFit : true}
+    // ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['waves'] = true;
       needToInitGridPanel['waves'] = true;
@@ -658,12 +661,13 @@ function initComponents() {
     ,columns          : [
        otherSelModel
       ,{id : 'status'     ,dataIndex : 'status'     ,renderer : renderLayerButton   ,width : 25}
-      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink ,width : 167}
+      ,{id : 'displayName',dataIndex : 'displayName',renderer : renderLayerInfoLink}
       ,{id : 'bbox'       ,dataIndex : 'bbox'       ,renderer : renderLayerCalloutButton    ,width : 20}
     ]
     ,hideHeaders      : true
     ,disableSelection : true
-    ,autoExpandColumn : 'displayName'
+    ,viewConfig       : {forceFit : true}
+    // ,autoExpandColumn : 'displayName'
     ,listeners        : {viewready : function(grid) {
       layersToSyncBbox['other'] = true;
       needToInitGridPanel['other'] = true;
@@ -689,6 +693,7 @@ function initComponents() {
        {id : 'status',dataIndex : 'status',renderer : renderLayerStatus}
       ,{id : 'legend',dataIndex : 'name'  ,renderer : renderLegend}
     ]
+    ,viewConfig       : {forceFit : true}
     ,hideHeaders      : true
     ,disableSelection : true
     ,listeners        : {afterrender : function() {
