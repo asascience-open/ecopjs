@@ -916,8 +916,7 @@ function initComponents() {
                 ,title     : 'Map date & time'
                 ,items     : [{
                    id    : 'mapTime'
-                  // ,text  : dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + ' ' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00 UTC'
-                  ,text  : dNow.format("yyyy-mm-dd HH:MM Z")
+                  ,text  : (function() {var d = new Date(dNow.getTime() + utcOffset);return d.format("UTC:yyyy-mm-dd HH:MM") + ' ' + timezone})()
                   ,width : 135
                 }]
               }
@@ -1135,7 +1134,7 @@ function initComponents() {
                 var prevPt;
                 $('#tsResults').bind('plothover',function(event,pos,item) {
                   if (item) {
-                    var x = new Date(item.datapoint[0] + new Date().getTimezoneOffset() * 60 * 1000);
+                    var x = (function() {var d = new Date(item.datapoint[0] + utcOffset);return d.format("UTC:yyyy-mm-dd HH:MM") + ' ' + timezone})()
                     var y = item.datapoint[1];
                     var label = item.series.label ? item.series.label + ' : ' : 'Map Time : ';
                     if (prevPoint != item.dataIndex) {
@@ -1177,7 +1176,7 @@ function initComponents() {
                       ,{
                          xaxis     : {mode  : "time"}
                         ,crosshair : {mode  : 'x'   }
-                        ,grid      : {backgroundColor : {colors : ['#fff','#eee']},borderWidth : 1,borderColor : '#99BBE8',hoverable : true,markings : [{color : '#0000ff',lineWidth : 2,xaxis : {from : dNow.getTime() - new Date().getTimezoneOffset() * 60000,to : dNow.getTime() - new Date().getTimezoneOffset() * 60000}}]}
+                        ,grid      : {backgroundColor : {colors : ['#fff','#eee']},borderWidth : 1,borderColor : '#99BBE8',hoverable : true,markings : [{color : '#0000ff',lineWidth : 2,xaxis : {from : dNow.getTime() + utcOffset,to : dNow.getTime() + utcOffset}}]}
                         ,zoom      : {interactive : false}
                         ,pan       : {interactive : false}
                         ,legend    : {backgroundOpacity : 0.3}
@@ -1602,7 +1601,7 @@ function getTimestampCallback(rec,lyr,r) {
   }
   else {
     var prevTs = rec.get('timestamp');
-    var newTs  = shortDateString(new Date(r.responseText * 1000));
+    var newTs  = shortDateString(new Date(r.responseText * 1000),utcOffset,timezone);
     rec.set('timestamp',newTs);
   }
 }
@@ -2452,8 +2451,7 @@ function restoreDefaultStyles(l,items,id) {
 }
 
 function setMapTime() {
-  // Ext.getCmp('mapTime').setText(dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + ' ' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00 UTC');
-  Ext.getCmp('mapTime').setText(dNow.format("yyyy-mm-dd HH:MM Z"));
+  Ext.getCmp('mapTime').setText((function() {var d = new Date(dNow.getTime() + utcOffset);return d.format("UTC:yyyy-mm-dd HH:MM") + ' ' + timezone})());
   var dStr = dNow.getUTCFullYear() + '-' + String.leftPad(dNow.getUTCMonth() + 1,2,'0') + '-' + String.leftPad(dNow.getUTCDate(),2,'0') + 'T' + String.leftPad(dNow.getUTCHours(),2,'0') + ':00';
   for (var i = 0; i < map.layers.length; i++) {
     // WMS layers only
@@ -2503,7 +2501,7 @@ function showAbstract(title,u) {
         Ext.Msg.alert(
            title
           ,"The most recent data available for this layer is "
-            + ' <a href="#" onclick="dNow = new Date(' + json.endTime + ' * 1000);setMapTime();Ext.Msg.hide()">' + shortDateString(new Date(json.endTime * 1000)) + '</a>'
+            + ' <a href="#" onclick="dNow = new Date(' + json.endTime + ' * 1000);setMapTime();Ext.Msg.hide()">' + shortDateString(new Date(json.endTime * 1000),utcOffset,timezone) + '</a>'
             + '.'
         );
         Ext.Msg.buttonText.ok = 'OK';

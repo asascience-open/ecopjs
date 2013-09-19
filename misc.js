@@ -519,20 +519,14 @@ function zeroPad(number, length) {
     return zeros.join('').substring(0, length - number.length) + number;
 }
 
-function shortDateString(d) {
-  return (d.getMonth() + 1)
-    + '/' + d.getDate() 
-    + '/' + d.getFullYear()
-    + ' ' + zeroPad(d.getHours(),2) 
-    + ':' + zeroPad(d.getMinutes(),2) 
-    + ' UTC' + (d.getTimezoneOffset() * -1 < 0 ? '-' : '+')
-    + zeroPad(d.getTimezoneOffset()/60,2);
-}
-
-function shortDateStringNoTime(d) {
-  return (d.getMonth() + 1)
-    + '/' + d.getDate()
-    + '/' + d.getFullYear();
+function shortDateString(d,utcOffset,timezone) {
+  var dt = new Date(d.getTime() + utcOffset);
+  return (dt.getMonth() + 1)
+    + '/' + dt.getDate() 
+    + '/' + dt.getFullYear()
+    + ' ' + zeroPad(dt.getHours(),2) 
+    + ':' + zeroPad(dt.getMinutes(),2) 
+    + ' ' + timezone
 }
 
 function shortDateToDate(s) {
@@ -561,31 +555,6 @@ function isoDateToDate(s) {
     ,hm[0]
     ,hm[1]
   );
-}
-
-function dateToFriendlyString(e) {
-  var c = "";
-  var a = new Date();
-  if (a.getDate() == e.getDate()) {
-    strDay = "today"
-  } else {
-    var b = new Date(a.getTime() + 86400000);
-    var d = new Date(a.getTime() - 86400000);
-    if (b.getDate() == e.getDate()) {
-      strDay = "tomorrow"
-    } else {
-      if (d.getDate() == e.getDate()) {
-        strDay = "yesterday"
-      } else {
-        aryDays = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
-        strDay = aryDays[e.getDay()]
-      }
-    }
-  }
-  c += (e.getHours() > 12 ? e.getHours() - 12 : (e.getHours() == 0 ? 12 : e.getHours()));
-  c += ":" + (e.getMinutes() < 10 ? "0" : "") + e.getMinutes() + (e.getHours() > 11 ? " pm" : " am");
-  c += " " + strDay;
-  return c
 }
 
 Number.prototype.toDeg = function() {

@@ -2,7 +2,7 @@
   ob_start();
   session_start();
 
-  $version = 0.07;
+  $version = 0.08;
 
   date_default_timezone_set('UTC');
 
@@ -34,6 +34,8 @@
       var bannerTitle    = '<?php echo str_replace("\n",'',str_replace("'","\\'",$_COOKIE['bannerTitle']))?>';
       var expirationDate = new Date(<?php echo $_COOKIE['expirationDate']?> * 1000);
       var userName       = '<?php echo $_COOKIE['userName']?>';
+      var utcOffset      = <?php echo json_encode((int)$_COOKIE['utcOffset'] * 1000)?>;
+      var timezone       = <?php echo json_encode($_COOKIE['timezone'])?>;
     </script>
 
     <script type="text/javascript">
@@ -78,7 +80,7 @@
     <script type="text/javascript" src="./js/jquery/excanvas.js"></script>
     <script type="text/javascript" src="./js/overlib.js"></script>
     <script type="text/javascript" src="./js/dateFormat.js"></script>
-    <script type="text/javascript" src="misc.js"></script>
+    <script type="text/javascript" src="misc.js?<?php echo $version?>"></script>
     <script type="text/javascript" src="map.js.php?<?php echo time()?>"></script>
     <div id="overDiv" class="overStyle" style="position:absolute;visibility:hidden;z-index:1000000;"></div>
   </body>

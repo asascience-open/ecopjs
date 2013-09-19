@@ -39,6 +39,11 @@ function confirmUser($username,$password,$url)
       setcookie("bannerTitle"   ,$xml->{'bannerTitle'});
       setcookie("defaultBasemap",$xml->{'defaultMap'});
       setcookie("imageRes"      ,$xml->{'imageRes'});
+      $city = sprintf("%s",$xml->{'city'});
+      $city = $city == '' ? 'UTC' : $city; // 'America/New_York';
+      $dt = new DateTime('now',new DateTimeZone($city));
+      setcookie("timezone"      ,$dt->format('T'));
+      setcookie("utcOffset"     ,$dt->getOffset());
       setcookie("userName"      ,$username);
       if (isset($xml->{'expirationDate'})) {
         $t = new DateTime(sprintf("%s",$xml->{'expirationDate'}));
