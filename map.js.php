@@ -17,6 +17,7 @@ var selectBuoyControl;
 var selectedBuoyFeature;
 
 var sessionListSort = 'date';
+var useCustomDateRange = false;
 
 var mainStore = new Ext.data.ArrayStore({
   fields : [
@@ -1121,6 +1122,7 @@ function initComponents() {
                         ,allowOtherMenus : true
                         ,listeners       : {select : function() {
                           if (lyrQueryPts.features.length > 0) {
+                            useCustomDateRange = true;
                             mapClick(lastMapClick['xy'],true,true);
                           }
                         }}
@@ -1129,6 +1131,7 @@ function initComponents() {
                         specialkey : function(but,e) {
                           if (e.keyCode == e.ENTER) {
                             if (lyrQueryPts.features.length > 0) {
+                              useCustomDateRange = true;
                               mapClick(lastMapClick['xy'],true,true);
                             }
                           }
@@ -1154,6 +1157,7 @@ function initComponents() {
                         ,allowOtherMenus : true
                         ,listeners       : {select : function() {
                           if (lyrQueryPts.features.length > 0) {
+                            useCustomDateRange = true;
                             mapClick(lastMapClick['xy'],true,true);
                           }
                         }}
@@ -1162,12 +1166,19 @@ function initComponents() {
                         specialkey : function(but,e) {
                           if (e.keyCode == e.ENTER) {
                             if (lyrQueryPts.features.length > 0) {
+                              useCustomDateRange = true;
                               mapClick(lastMapClick['xy'],true,true);
                             }
                           }
                         }
                       }
                     })
+                  ]})
+                  ,' '
+                  ,new Ext.Panel({bodyStyle : 'background:transparent',border : false,layout : 'column',defaults : {border : false},items : [
+                     {html : '&nbsp',bodyStyle : 'padding-top:6px;background:transparent',width : 25}
+                    ,new Ext.Button({columnWidth : 1,text : 'Reset',handler : function() {resetCustomDateFields()}})
+                    ,{html : '&nbsp',bodyStyle : 'padding-top:6px;background:transparent',width : 25}
                   ]})
                 ] 
               }}
@@ -1906,6 +1917,9 @@ function queryWMS(xy,a,chartIt) {
       ,HEIGHT        : map.size.h
       ,TIME          : makeTimeParam(new Date(Ext.getCmp('beginDateField').getValue().getTime() - dNow.getTimezoneOffset() * 60000 - utcOffset)) + '/' + makeTimeParam(new Date(Ext.getCmp('endDateField').getValue().getTime() - dNow.getTimezoneOffset() * 60000 - utcOffset))
     };
+    if (!useCustomDateRange) {
+      paramNew['TIME'] = makeTimeParam(new Date(dNow.getTime() - 12 * 3600 * 1000)) + '/' + makeTimeParam(new Date(dNow.getTime() + 36 * 3600 * 1000));
+    }
     targets.push({url : a[i].getFullRequestString(paramNew,'getFeatureInfo.php?' + a[i].url + '&tz=' + new Date().getTimezoneOffset() + mapTime),title : mainStore.getAt(mainStore.find('name',a[i].name)).get('displayName'),type : 'model'});
   }
   if (chartIt) {
@@ -2865,4 +2879,28 @@ function leftPad(value,padding) {
 
 function makeTimeParam(d) {
   return d.getUTCFullYear() + '-' + leftPad(d.getUTCMonth() + 1,2) + '-' + leftPad(d.getUTCDate(),2) + 'T' + leftPad(d.getUTCHours(),2) + ':00:00'
+}
+
+function resetCustomDateFields() {
+  var d = new Date(dNow.getTime() - 24 * 3600 * 1000);
+  d.setTime(d.getTime() - d.getTimezoneOffset() * 60000 - utcOffset);
+  d.setHours(0);
+  d.setMinutes(0);
+  d.setSeconds(0);
+  d.setMilliseconds(0);
+  Ext.getCmp('beginDateField').setValue(d);
+
+  d = new Date(dNow.getTime() + 48 * 3600 * 1000);
+  d.setTime(d.getTime() - d.getTimezoneOffset() * 60000 - utcOffset);
+  d.setHours(0);
+  d.setMinutes(0);
+  d.setSeconds(0);
+  d.setMilliseconds(0);
+  Ext.getCmp('endDateField').setValue(d);
+
+  useCustomDateRange = false;
+
+  if (lyrQueryPts.features.length > 0) {
+    mapClick(lastMapClick['xy'],true,true);
+  }
 }
