@@ -937,7 +937,7 @@ function initComponents() {
                     ,icon    : 'img/calendar_view_day16.png'
                     ,menu    : new Ext.menu.Menu({showSeparator : false,items : [
                       new Ext.DatePicker({
-                         value     : new Date(dNow.getTime() + dNow.getTimezoneOffset() * 60000)
+                         value     : new Date(dNow.getTime() + dNow.getTimezoneOffset() * 60000 + utcOffset)
                         ,id        : 'datePicker'
                         ,listeners : {
                           select : function(picker,d) {
@@ -945,6 +945,7 @@ function initComponents() {
                             d.setUTCMinutes(0);
                             d.setUTCSeconds(0);
                             d.setUTCMilliseconds(0);
+                            d.setTime(d.getTime() - utcOffset);
                             dNow = d;
                             setMapTime();
                           }
