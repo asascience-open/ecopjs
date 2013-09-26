@@ -1091,7 +1091,7 @@ function initComponents() {
               ,new Ext.form.ComboBox({
                  mode           : 'local'
                 ,id             : 'chartLayerCombo'
-                ,width          : 300
+                ,width          : 200
                 ,store          : chartLayerStore
                 ,displayField   : 'displayName'
                 ,valueField     : 'name'
@@ -1100,6 +1100,77 @@ function initComponents() {
                 ,editable       : false
               })
               ,'->'
+              ,{text : 'Custom date range',tooltip : 'Customize the time series result date range',icon : 'img/calendar_view_day16.png',menu : {
+                 showSeparator : false
+                ,items         : [
+                  new Ext.Panel({bodyStyle : 'background:transparent',border : false,layout : 'column',defaults : {border : false},items : [
+                     {html : 'Begin date&nbsp;',bodyStyle : 'padding-top:6px;background:transparent',width : 75}
+                    ,new Ext.form.DateField({
+                       id    : 'beginDateField'
+                      ,value : (function() {
+                        var d = new Date(dNow.getTime() - 24 * 3600 * 1000);
+                        d.setTime(d.getTime() - d.getTimezoneOffset() * 60000 - utcOffset);
+                        d.setHours(0);
+                        d.setMinutes(0);
+                        d.setSeconds(0);
+                        d.setMilliseconds(0);
+                        return d;
+                      })()
+                      ,menu  : new Ext.menu.DateMenu({
+                         hideOnClick     : false
+                        ,allowOtherMenus : true
+                        ,listeners       : {select : function() {
+                          if (lyrQueryPts.features.length > 0) {
+                            mapClick(lastMapClick['xy'],true,true);
+                          }
+                        }}
+                      })
+                      ,listeners : {
+                        specialkey : function(but,e) {
+                          if (e.keyCode == e.ENTER) {
+                            if (lyrQueryPts.features.length > 0) {
+                              mapClick(lastMapClick['xy'],true,true);
+                            }
+                          }
+                        }
+                      }
+                    })
+                  ]})
+                  ,new Ext.Panel({bodyStyle : 'background:transparent',border : false,layout : 'column',defaults : {border : false},items : [
+                     {html : 'End date&nbsp;',bodyStyle : 'padding-top:6px;background:transparent',width : 75}
+                    ,new Ext.form.DateField({
+                       id    : 'endDateField'
+                      ,value : (function() {
+                        var d = new Date(dNow.getTime() + 48 * 3600 * 1000);
+                        d.setTime(d.getTime() - d.getTimezoneOffset() * 60000 - utcOffset);
+                        d.setHours(0);
+                        d.setMinutes(0);
+                        d.setSeconds(0);
+                        d.setMilliseconds(0);
+                        return d;
+                      })()
+                      ,menu  : new Ext.menu.DateMenu({
+                         hideOnClick     : false
+                        ,allowOtherMenus : true
+                        ,listeners       : {select : function() {
+                          if (lyrQueryPts.features.length > 0) {
+                            mapClick(lastMapClick['xy'],true,true);
+                          }
+                        }}
+                      })
+                      ,listeners : {
+                        specialkey : function(but,e) {
+                          if (e.keyCode == e.ENTER) {
+                            if (lyrQueryPts.features.length > 0) {
+                              mapClick(lastMapClick['xy'],true,true);
+                            }
+                          }
+                        }
+                      }
+                    })
+                  ]})
+                ] 
+              }}
               ,{
                  text    : 'Requery'
                 ,icon    : 'img/arrow_refresh.png'
@@ -1833,7 +1904,7 @@ function queryWMS(xy,a,chartIt) {
       ,FEATURE_COUNT : 1
       ,WIDTH         : map.size.w
       ,HEIGHT        : map.size.h
-      ,TIME          : makeTimeParam(new Date(dNow.getTime() - 12 * 3600 * 1000)) + '/' + makeTimeParam(new Date(dNow.getTime() + 36 * 3600 * 1000))
+      ,TIME          : makeTimeParam(new Date(Ext.getCmp('beginDateField').getValue().getTime() - dNow.getTimezoneOffset() * 60000 - utcOffset)) + '/' + makeTimeParam(new Date(Ext.getCmp('endDateField').getValue().getTime() - dNow.getTimezoneOffset() * 60000 - utcOffset))
     };
     targets.push({url : a[i].getFullRequestString(paramNew,'getFeatureInfo.php?' + a[i].url + '&tz=' + new Date().getTimezoneOffset() + mapTime),title : mainStore.getAt(mainStore.find('name',a[i].name)).get('displayName'),type : 'model'});
   }
