@@ -1,5 +1,6 @@
 <?php
   session_start();
+  header('Content-type: text/javascript');
 
   $config = getenv('config') ? getenv('config') : 'DEFAULT';
   require_once("config/$config/conf.php");
@@ -151,8 +152,8 @@ var imageQualityStore = new Ext.data.ArrayStore({
     'name'
   ]
   ,data : [
-     ['Low']
-    ,['High']
+     ['low']
+    ,['high']
   ]
 });
 
@@ -300,7 +301,7 @@ function initMainStore() {
           ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
-          ,'settingsParam'        : 'baseStyle,colorMap,barbLabel,striding,tailMag,min,max'
+          ,'settingsParam'        : 'baseStyle,colorMap,barbLabel,striding,tailMag,min,max,imageQuality'
           ,'settingsOpacity'      : 100
           ,'settingsImageQuality' : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[7]
           ,'settingsImageType'    : 'png'
@@ -337,7 +338,7 @@ function initMainStore() {
           ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
-          ,'settingsParam'        : 'baseStyle,barbLabel,striding,min,max'
+          ,'settingsParam'        : 'baseStyle,barbLabel,striding,min,max,imageQuality'
           ,'settingsOpacity'      : 100
           ,'settingsImageQuality' : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[5]
           ,'settingsImageType'    : 'png'
@@ -2122,6 +2123,7 @@ function setLayerSettings(layerName) {
   if (!activeSettingsWindows[layerName]) {
     var pos = getOffset(document.getElementById('info.' + layerName));
     var idx = mainStore.find('name',layerName);
+    var settingsParam = mainStore.getAt(idx).get('settingsParam').split(',');
     var height = 26;
     var id = Ext.id();
     var items = [
@@ -2162,7 +2164,16 @@ function setLayerSettings(layerName) {
           ,width    : 130
           ,minValue : 0
           ,maxValue : mainStore.getAt(idx).get('settingsMaxDepth')
-          ,value    : mainStore.getAt(idx).get('settingsDepth')
+          ,value    :
+            (function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                return OpenLayers.Util.getParameters(l.getFullRequestString({}))['ELEVATION'];
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsDepth')
+              }
+            })()
           ,plugins  : new Ext.slider.Tip({
             getText : function(thumb) {
               return String.format('<b>{0}</b>',thumb.value);
@@ -2190,11 +2201,25 @@ function setLayerSettings(layerName) {
       items.push(
         new Ext.form.ComboBox({
            fieldLabel     : 'Image quality<a href="javascript:Ext.getCmp(\'tooltip.' + id + '.imageQuality' + '\').show()"><img style="margin-left:2px;margin-bottom:2px" id="' + id + '.imageQuality' + '" src="img/info.png"></a>'
-          ,id             : 'imageType.' + id
+          ,id             : 'imageQuality.' + id
           ,store          : imageQualityStore
           ,displayField   : 'name'
           ,valueField     : 'name'
-          ,value          : mainStore.getAt(idx).get('settingsImageQuality')
+          ,value          :
+            (function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                for (var i = 0; i < settingsParam.length; i++) {
+                  if (settingsParam[i] == 'imageQuality') {
+                    return p[i];
+                  }
+                }
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsImageQuality')
+              }
+            })()
           ,editable       : false
           ,triggerAction  : 'all'
           ,mode           : 'local'
@@ -2226,7 +2251,21 @@ function setLayerSettings(layerName) {
           ,store          : baseStylesStore
           ,displayField   : 'name'
           ,valueField     : 'value'
-          ,value          : mainStore.getAt(idx).get('settingsBaseStyle')
+          ,value          :
+            (function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                for (var i = 0; i < settingsParam.length; i++) {
+                  if (settingsParam[i] == 'baseStyle') {
+                    return p[i];
+                  }
+                }
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsBaseStyle')
+              }
+            })()
           ,editable       : false
           ,triggerAction  : 'all'
           ,mode           : 'local'
@@ -2269,7 +2308,21 @@ function setLayerSettings(layerName) {
           ,store          : colorMapStore
           ,displayField   : 'name'
           ,valueField     : 'name'
-          ,value          : mainStore.getAt(idx).get('settingsColorMap')
+          ,value          :
+            (function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                for (var i = 0; i < settingsParam.length; i++) {
+                  if (settingsParam[i] == 'colorMap') {
+                    return p[i];
+                  }
+                }
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsColorMap')
+              }
+            })()
           ,editable       : false
           ,triggerAction  : 'all'
           ,mode           : 'local'
@@ -2294,7 +2347,6 @@ function setLayerSettings(layerName) {
     }
     if (mainStore.getAt(idx).get('settingsMinMaxBounds') != '') {
       height += 27;
-      var settingsParam = mainStore.getAt(idx).get('settingsParam').split(',');
       var settings = {};
       for (var i = 0; i < settingsParam.length; i++) {
         if (settingsParam[i] != '') {
@@ -2371,7 +2423,23 @@ function setLayerSettings(layerName) {
           ,width    : 130
           ,minValue : 0
           ,maxValue : stridingStore.getCount() - 1
-          ,value    : stridingStore.find('param',mainStore.getAt(idx).get('settingsStriding'))
+          ,value    : stridingStore.find(
+             'param'
+            ,(function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                for (var i = 0; i < settingsParam.length; i++) {
+                  if (settingsParam[i] == 'striding') {
+                    return p[i];
+                  }
+                }
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsStriding')
+              }
+            })()
+          )
           ,plugins  : new Ext.slider.Tip({
             getText : function(thumb) {
               var pct = stridingStore.getAt(thumb.value).get('param');
@@ -2420,7 +2488,21 @@ function setLayerSettings(layerName) {
           ,store          : tailMagStore
           ,displayField   : 'name'
           ,valueField     : 'name'
-          ,value          : mainStore.getAt(idx).get('settingsTailMag')
+          ,value          :
+            (function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                for (var i = 0; i < settingsParam.length; i++) {
+                  if (settingsParam[i] == 'tailMag') {
+                    return p[i];
+                  }
+                }
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsTailMag')
+              }
+            })()
           ,editable       : false
           ,triggerAction  : 'all'
           ,mode           : 'local'
@@ -2452,7 +2534,21 @@ function setLayerSettings(layerName) {
           ,store          : barbLabelStore
           ,displayField   : 'name'
           ,valueField     : 'value'
-          ,value          : mainStore.getAt(idx).get('settingsBarbLabel')
+          ,value          :
+            (function() {
+              var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+              if (l.visibility) {
+                var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                for (var i = 0; i < settingsParam.length; i++) {
+                  if (settingsParam[i] == 'barbLabel') {
+                    return p[i];
+                  }
+                }
+              }
+              else {
+                return mainStore.getAt(idx).get('settingsBarbLabel')
+              }
+            })()
           ,editable       : false
           ,triggerAction  : 'all'
           ,mode           : 'local'
@@ -2552,9 +2648,9 @@ function restoreDefaultStyles(l,items,id) {
     if (items[i].id == 'opacity.' + id) {
       cmp.setValue(100);
     }
-    else if (items[i].id == 'imageType.' + id) {
-      cmp.setValue('png');
-      cmp.fireEvent('select',cmp,new imageQualityStore.recordType({value : 'png'}));
+    else if (items[i].id == 'imageQuality.' + id) {
+      cmp.setValue(settings['imageQuality']);
+      cmp.fireEvent('select',cmp,new imageQualityStore.recordType({name : settings['imageQuality']}));
     }
     else if (items[i].id == 'baseStyle.' + id) {
       cmp.setValue(settings['baseStyle']);
