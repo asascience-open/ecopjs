@@ -363,8 +363,8 @@ function initMainStore() {
       }
       else if (layerType == 'waves') {
         if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
-          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = '';
-          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = '';
+          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'WAVE_HEIGHT_STYLE-0-3';
+          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'WAVE_HEIGHT_STYLE-0-3';
         }
         mainStore.add(new mainStore.recordType({
            'type'                 : 'waves'
@@ -374,19 +374,19 @@ function initMainStore() {
           ,'status'               : layerConfig.availableLayers[layerType][i].status
           ,'settings'             : 'off'
           ,'infoBlurb'            : layerConfig.availableLayers[layerType][i].abstract
-          ,'settingsParam'        : ''
+          ,'settingsParam'        : 'baseStyle,min,max'
           ,'settingsOpacity'      : 100
           ,'settingsImageQuality' : ''
           ,'settingsImageType'    : 'png'
           ,'settingsPalette'      : ''
-          ,'settingsBaseStyle'    : ''
+          ,'settingsBaseStyle'    : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[0]
           ,'settingsColorMap'     : ''
           ,'settingsStriding'     : ''
           ,'settingsBarbLabel'    : ''
           ,'settingsTailMag'      : ''
-          ,'settingsMin'          : ''
-          ,'settingsMax'          : ''
-          ,'settingsMinMaxBounds' : ''
+          ,'settingsMin'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[1]
+          ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[2]
+          ,'settingsMinMaxBounds' : '0-9'
           ,'settingsDepth'        : 0
           ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
           ,'rank'                 : ''
