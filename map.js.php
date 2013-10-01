@@ -363,8 +363,8 @@ function initMainStore() {
       }
       else if (layerType == 'waves') {
         if (typeof defaultStyles[layerConfig.availableLayers[layerType][i].title] != 'string') {
-          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = 'WAVE_HEIGHT_STYLE-0-3';
-          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = 'WAVE_HEIGHT_STYLE-0-3';
+          defaultStyles[layerConfig.availableLayers[layerType][i].title]          = /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? 'WAVE_HEIGHT_STYLE-0-3' : '';
+          guaranteeDefaultStyles[layerConfig.availableLayers[layerType][i].title] = /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? 'WAVE_HEIGHT_STYLE-0-3' : '';
         }
         mainStore.add(new mainStore.recordType({
            'type'                 : 'waves'
@@ -384,9 +384,9 @@ function initMainStore() {
           ,'settingsStriding'     : ''
           ,'settingsBarbLabel'    : ''
           ,'settingsTailMag'      : ''
-          ,'settingsMin'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[1]
-          ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[2]
-          ,'settingsMinMaxBounds' : '0-9'
+          ,'settingsMin'          : /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[1] : ''
+          ,'settingsMax'          : /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[2] : ''
+          ,'settingsMinMaxBounds' : /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? '0-9' : ''
           ,'settingsDepth'        : 0
           ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
           ,'rank'                 : ''
@@ -1563,6 +1563,7 @@ function initMap() {
         ,styles     : defaultStyles[layerConfig.layerStack[i].title]
         ,singleTile : true
         ,projection : proj3857
+        ,type       : layerConfig.layerStack[i].type
       });
     }
   }
@@ -1662,6 +1663,7 @@ function addWMS(l) {
       ,transitionEffect : 'resize'
     }
   );
+  lyr.type = l.type;
   addLayer(lyr,true);
 }
 
@@ -1709,6 +1711,21 @@ function addLayer(lyr,timeSensitive) {
         }
       }
       layerLoadendUnmask();
+    }
+    else if (!lyr.hasBeenVisible) {
+      // see if any other similar layer has been vizzed -- if so, match its style
+      // special case for wave height -- don't want to mix wave height & dir up
+      legendsStore.each(function(rec) {
+        var thisStyles   = OpenLayers.Util.getParameters(lyr.getFullRequestString({}))['STYLES'];
+        var targetStyles = OpenLayers.Util.getParameters(map.getLayersByName(rec.get('name'))[0].getFullRequestString({}))['STYLES'];
+        if (rec.get('type') == lyr.type && (rec.get('type') != 'waves' || (thisStyles.split('-')[0] == targetStyles.split('-')[0]))) {
+          lyr.mergeNewParams({
+            STYLES : targetStyles
+          });
+          return false;
+        }
+      });
+      lyr.hasBeenVisible = true;
     }
   });
   lyr.events.register('loadstart',this,function(e) {
@@ -2292,7 +2309,36 @@ function setLayerSettings(layerName) {
           ,minValue : mainStore.getAt(idx).get('settingsMinMaxBounds').split('-')[0]
           ,maxValue : mainStore.getAt(idx).get('settingsMinMaxBounds').split('-')[1]
           ,decimalPrecision : 1
-          ,values   : [mainStore.getAt(idx).get('settingsMin'),mainStore.getAt(idx).get('settingsMax')]
+          ,values   : [
+             (function() {
+               var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+               if (l.visibility) {
+                 var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                 for (var i = 0; i < settingsParam.length; i++) {
+                   if (settingsParam[i] == 'min') {
+                     return p[i];
+                   }
+                 }
+               }
+               else {
+                 return mainStore.getAt(idx).get('settingsMin');
+               }
+             })()
+             ,(function() {
+               var l = map.getLayersByName(mainStore.getAt(idx).get('name'))[0];
+               if (l.visibility) {
+                 var p = OpenLayers.Util.getParameters(l.getFullRequestString({}))['STYLES'].split('-');
+                 for (var i = 0; i < settingsParam.length; i++) {
+                   if (settingsParam[i] == 'max') {
+                     return p[i];
+                   }
+                 }
+               }
+               else {
+                 return mainStore.getAt(idx).get('settingsMax');
+               }
+             })()
+          ]
           ,plugins  : new Ext.slider.Tip({
             getText : function(thumb) {
               return String.format('<b>{0}</b>', thumb.value);
@@ -2438,9 +2484,10 @@ function setLayerSettings(layerName) {
       ,width     : 270
       ,constrainHeader : true
       ,title     : mainStore.getAt(idx).get('displayName').split('||')[0] + ' :: settings'
-      ,items     : [
-         new Ext.FormPanel({buttonAlign : 'center',border : false,bodyStyle : 'background:transparent',width : 240,height : height + 35,labelWidth : 100,labelSeparator : '',items : items,buttons : [{text : 'Restore default settings',width : 150,handler : function() {restoreDefaultStyles(layerName,items,id)}}]})
-      ]
+      ,items     : new Ext.FormPanel({buttonAlign : 'center',border : false,bodyStyle : 'background:transparent',width : 240,height : height + (mainStore.getAt(idx).get('type') != 'other' ? 50 : 5),labelWidth : 100,labelSeparator : '',items : items,buttons : mainStore.getAt(idx).get('type') != 'other' ? [
+         {scale : 'large',width : 110,text : 'Copy settings to active<br>"' + mainStore.getAt(idx).get('type') + '" layers',handler : function() {copyStyles(layerName)}}
+        ,{scale : 'large',width : 110,text : 'Restore<br>default settings',handler : function() {restoreDefaultStyles(layerName,items,id)}}
+      ] : []})
       ,listeners : {hide : function() {
         activeSettingsWindows[layerName] = null;
       }}
@@ -2539,6 +2586,19 @@ function restoreDefaultStyles(l,items,id) {
       cmp.fireEvent('changecomplete',cmp,0);
     }
   }
+}
+
+function copyStyles(layerName) {
+  var lyr = map.getLayersByName(layerName)[0];
+  var thisStyles = OpenLayers.Util.getParameters(lyr.getFullRequestString({}))['STYLES'];
+  legendsStore.each(function(rec) {
+    var targetStyles = OpenLayers.Util.getParameters(map.getLayersByName(rec.get('name'))[0].getFullRequestString({}))['STYLES'];
+    if (rec.get('name') != lyr.name && rec.get('type') == lyr.type && (rec.get('type') != 'waves' || (thisStyles.split('-')[0] == targetStyles.split('-')[0]))) {
+      map.getLayersByName(rec.get('name'))[0].mergeNewParams({
+        STYLES : thisStyles
+      });
+    }
+  });
 }
 
 function setMapTime() {
