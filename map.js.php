@@ -2613,12 +2613,12 @@ function setCustomStyles(rec) {
     // record the action on google analytics
     pageTracker._trackEvent('setStyle','tailMag',rec.get('name'));
   }
-  if (rec.get('settingsMin') != '') {
+  if (typeof(rec.get('settingsMin')) == 'number' || (typeof(rec.get('settingsMin')) == 'string' && rec.get('settingsMin') != '')) {
     styles.push(rec.get('settingsMin'));
     // record the action on google analytics
     pageTracker._trackEvent('setStyle','minVal',rec.get('name'));
   }
-  if (rec.get('settingsMax') != '') {
+  if (typeof(rec.get('settingsMax')) == 'number' || (typeof(rec.get('settingsMax')) == 'string' && rec.get('settingsMax') != '')) {
     styles.push(rec.get('settingsMax'));
     // record the action on google analytics
     pageTracker._trackEvent('setStyle','maxVal',rec.get('name'));
