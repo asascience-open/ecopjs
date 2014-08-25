@@ -1986,7 +1986,14 @@ function makeChart(type,a) {
       if (chartData.length == 1 && String(chartData[0]).indexOf('QUERY ERROR') == 0) {
         chartData.pop();
       }
+      var j = 0;
       for (var v in obs.d) {
+        // Skill Scores are special.  The set is queried at once and will never
+        // be compared against another layer.  And the colors need to be iterated.
+        var color = lineColor;
+        if (obs.u[v] == 'Skill Score') {
+          color = lineColors[j % lineColors.length][0];
+        }
         // get the data
         chartData.push({
            data   : []
@@ -1994,7 +2001,7 @@ function makeChart(type,a) {
           ,yaxis  : yaxis
           ,lines  : {show : true}
           ,nowIdx : obs.d[v].length > 1 ? obs.nowIdx : ''
-          ,color  : lineColor
+          ,color  : color
           ,type   : type
         });
         for (var i = 0; i < obs.d[v].length; i++) {
@@ -2003,7 +2010,10 @@ function makeChart(type,a) {
         if (obs.d[v].length == 1) {
           chartData[chartData.length - 1].points = {show : true};
         }
-        yaxis++;
+        if (obs.u[v] != 'Skill Score') {
+          yaxis++;
+        }
+        j++;
       }
       // record the action on google analytics
       pageTracker._trackEvent('chartView',title,'ok');
