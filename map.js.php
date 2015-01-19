@@ -1997,7 +1997,7 @@ function makeChart(type,a) {
         // get the data
         chartData.push({
            data   : []
-          ,label  : title.split('||')[0] + ' : ' + v + ' (' + obs.u[v] + ')'
+          ,label  : title.split('||')[0] + ' : ' + v + ' (' + obs.u[v] + ')' + obs.lab[v]
           ,yaxis  : yaxis
           ,lines  : {show : true}
           ,nowIdx : obs.d[v].length > 1 ? obs.nowIdx : ''

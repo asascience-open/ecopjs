@@ -14,6 +14,11 @@
     $data['error'] = sprintf("%s",$xml->{'ServiceException'}->attributes()->{'code'});
   }
   else if ($xml->{'Point'}) {
+    // special case for buoys
+    $buoyNum = '';
+    if ($xml->attributes()->{'BuoyNum'}) {
+      $buoyNum = sprintf("Buoy ID %s",$xml->attributes()->{'BuoyNum'});
+    }
     foreach ($xml->{'Point'} as $p) {
       $a = preg_split("/-| |:/",sprintf("%s",$p->{'Time'}[0]));
       $t = mktime($a[3],$a[4],$a[5],$a[0],$a[1],$a[2]) - $_REQUEST['tz'] * 60;
@@ -26,6 +31,7 @@
         if (!array_key_exists($vStr,$data['d'])) {
           $data['d'][$vStr] = array(sprintf("%f",$v));
           $data['u'][$vStr] = sprintf("%s",$v->attributes()->{'Unit'});
+          $data['lab'][$vStr] = ' '.$buoyNum;
         }
         else {
           array_push($data['d'][$vStr],sprintf("%f",$v));
@@ -45,6 +51,7 @@
         if (!array_key_exists($vStr,$data['d'])) {
           $data['d'][$vStr] = array(sprintf("%f",$p->{'value'}[0]));
           $data['u'][$vStr] = 'Degrees in Celcius';
+          $data['lab'][$vStr] = '';
         }
         else {
           array_push($data['d'][$vStr],array(sprintf("%f",$p->{'value'}[0])));
