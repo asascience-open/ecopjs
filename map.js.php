@@ -1524,6 +1524,12 @@ function initMap() {
       navControl.draw();
     }
     map.getLayersByName('OpenStreetMapOlay')[0].setVisibility(map.baseLayer.name == 'ESRI Ocean' && map.getZoom() >= 11);
+    for (var i = 0; i < map.layers.length; i++) {
+      if (map.layers[i].params && map.layers[i].params.LAYERS && /SLDMB/.test(map.layers[i].params.LAYERS)) {
+        map.layers[i].mergeNewParams({foo : new Date().getTime()});
+        console.log(map.layers[i].name);
+      }
+    }
   });
 
   map.events.register('changelayer',this,function(e) {
@@ -1535,6 +1541,9 @@ function initMap() {
            REQUEST : 'GetLegendGraphic'
           ,LAYER   : OpenLayers.Util.getParameters(e.layer.getFullRequestString({}))['LAYERS']
         };
+        if (e.layer.params && e.layer.params.LAYERS && /SLDMB/.test(e.layer.params.LAYERS)) {
+          params['BBOX'] = map.getExtent().toBBOX();
+        }
         if (mainStore.getAt(idx).get('legend').indexOf('GetMetadata') >= 0) {
           params.GetMetadata     = '';
           params.COLORSCALERANGE = getColorScaleRange();
