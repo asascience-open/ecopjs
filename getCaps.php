@@ -29,6 +29,7 @@
       )
       ,'maxDepth' => sprintf("%f",$l->{'DepthLayers'})
       ,'status'   => in_array(sprintf("%s",$l->{'Name'}),$defaultLayers) ? 'on' : 'off'
+      ,'refreshLegend' => sprintf("%s",$l->{'RefreshLegend'})
     );
     if (preg_match('/^BUOY_/',$a['name'])) {
       // buoy names come in as BUOY_buoyName_sensorName
@@ -42,6 +43,7 @@
           ,'abstract' => 'No information currently available.' // $a['abstract']
           ,'bbox'     => $a['bbox']
           ,'status'   => in_array($name,$defaultLayers) || in_array($a['name'],$defaultLayers) ? 'on' : 'off'
+          ,'refreshLegend' => $a['refreshLegend']
           ,'type'     => 'buoys'
           ,'sensors'  => array()
         );

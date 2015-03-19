@@ -1525,9 +1525,8 @@ function initMap() {
     }
     map.getLayersByName('OpenStreetMapOlay')[0].setVisibility(map.baseLayer.name == 'ESRI Ocean' && map.getZoom() >= 11);
     for (var i = 0; i < map.layers.length; i++) {
-      if (map.layers[i].params && map.layers[i].params.LAYERS && /SLDMB/.test(map.layers[i].params.LAYERS)) {
+      if (map.layers[i].options && map.layers[i].options.refreshLegend == 'True') {
         map.layers[i].mergeNewParams({foo : new Date().getTime()});
-        console.log(map.layers[i].name);
       }
     }
   });
@@ -1541,7 +1540,7 @@ function initMap() {
            REQUEST : 'GetLegendGraphic'
           ,LAYER   : OpenLayers.Util.getParameters(e.layer.getFullRequestString({}))['LAYERS']
         };
-        if (e.layer.params && e.layer.params.LAYERS && /SLDMB/.test(e.layer.params.LAYERS)) {
+        if (e.layer.options && e.layer.options.refreshLegend == 'True') {
           params['BBOX'] = map.getExtent().toBBOX();
         }
         if (mainStore.getAt(idx).get('legend').indexOf('GetMetadata') >= 0) {
@@ -1566,14 +1565,15 @@ function initMap() {
     }
     else {
       addWMS({
-         name       : layerConfig.layerStack[i].title
-        ,url        : 'http://coastmap.com/ecop/wms.aspx?'
-        ,layers     : layerConfig.layerStack[i].name
-        ,format     : 'image/png'
-        ,styles     : defaultStyles[layerConfig.layerStack[i].title]
-        ,singleTile : true
-        ,projection : proj3857
-        ,type       : layerConfig.layerStack[i].type
+         name          : layerConfig.layerStack[i].title
+        ,url           : 'http://coastmap.com/ecop/wms.aspx?'
+        ,layers        : layerConfig.layerStack[i].name
+        ,format        : 'image/png'
+        ,styles        : defaultStyles[layerConfig.layerStack[i].title]
+        ,singleTile    : true
+        ,projection    : proj3857
+        ,type          : layerConfig.layerStack[i].type
+        ,refreshLegend : layerConfig.layerStack[i].refreshLegend
       });
     }
   }
@@ -1671,6 +1671,7 @@ function addWMS(l) {
       ,opacity     : mainStore.getAt(mainStore.find('name',l.name)).get('settingsOpacity') / 100
       ,wrapDateLine     : true
       ,transitionEffect : 'resize'
+      ,refreshLegend    : l.refreshLegend
     }
   );
   lyr.type = l.type;
