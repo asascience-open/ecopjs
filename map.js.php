@@ -1667,6 +1667,7 @@ function addWMS(l) {
        isBaseLayer : false
       ,projection  : l.projection
       ,singleTile  : l.singleTile
+      ,ratio       : 1
       ,visibility  : mainStore.getAt(mainStore.find('name',l.name)).get('status') == 'on'
       ,opacity     : mainStore.getAt(mainStore.find('name',l.name)).get('settingsOpacity') / 100
       ,wrapDateLine     : true
