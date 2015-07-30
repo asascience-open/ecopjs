@@ -31,6 +31,17 @@
       ,'status'   => in_array(sprintf("%s",$l->{'Name'}),$defaultLayers) ? 'on' : 'off'
       ,'refreshLegend' => sprintf("%s",$l->{'RefreshLegend'})
     );
+
+	if ((int)$a['maxDepth'] > 0) {
+		$depths = $l->xpath("Dimension[@name='elevation']");
+		$a['depths'] = explode(", ", $depths[0]);
+		$a['depthUnits'] = sprintf("%s",$depths[0]->attributes()->{'unitSymbol'});
+	}
+    else {
+        $a['depths'] = [];
+		$a['depthUnits'] ='';
+    }
+
     if (preg_match('/^BUOY_/',$a['name'])) {
       // buoy names come in as BUOY_buoyName_sensorName
       $p = explode('_',$a['name']);
