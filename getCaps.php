@@ -38,7 +38,7 @@
 		$a['depthUnits'] = sprintf("%s",$depths[0]->attributes()->{'unitSymbol'});
 	}
     else {
-        $a['depths'] = [];
+        $a['depths'] = new array();
 		$a['depthUnits'] ='';
     }
 
