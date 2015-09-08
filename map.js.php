@@ -1579,13 +1579,13 @@ function initMap() {
         ,layers     : layerConfig.layerStack[i].name
         ,sensors    : layerConfig.layerStack[i].sensors
         ,bbox       : layerConfig.layerStack[i].bbox
-        ,url        : 'http://coastmap.com/ecop/wms.aspx?'
+        ,url        : '<?php echo $wms; ?>'
       });
     }
     else {
       addWMS({
          name          : layerConfig.layerStack[i].title
-        ,url           : 'http://coastmap.com/ecop/wms.aspx?'
+        ,url           : '<?php echo $wms; ?>'
         ,layers        : layerConfig.layerStack[i].name
         ,format        : 'image/png'
         ,styles        : defaultStyles[layerConfig.layerStack[i].title]
@@ -2637,6 +2637,7 @@ function setLayerSettings(layerName) {
 }
 
 function setCustomStyles(rec) {
+    console.log('test');
   var styles = [rec.get('settingsBaseStyle')];
   if (rec.get('settingsColorMap') != '') {
     styles.push(rec.get('settingsColorMap'));
