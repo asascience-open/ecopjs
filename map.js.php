@@ -2,7 +2,7 @@
   session_start();
   header('Content-type: text/javascript');
 
-  $config = getenv('config') ? getenv('config') : 'DEFAULT';
+  $config = getenv('config') ? getenv('config') : 'ecop';
   require_once("config/$config/conf.php");
   require_once("getCaps.php");
 
@@ -43,7 +43,9 @@ var mainStore = new Ext.data.ArrayStore({
     ,'settingsMax'
     ,'settingsMinMaxBounds'
     ,'settingsDepth'
+    ,'settingsDepths'
     ,'settingsMaxDepth'
+    ,'settingsDepthUnits'
     ,'rank'
     ,'legend'
     ,'timestamp'
@@ -244,7 +246,7 @@ function init() {
   initMainStore();
   initComponents();
 
-  Ext.Msg.alert('Welcome','Welcome, ' + userName + '.  Your subscription is set to expire on ' + expirationDate.toDateString() + '.');
+  //Ext.Msg.alert('Welcome','Welcome, ' + userName + '.  Your subscription is set to expire on ' + expirationDate.toDateString() + '.');
 }
 
 function initMainStore() {
@@ -277,8 +279,10 @@ function initMainStore() {
           ,'settingsMin'          : ''
           ,'settingsMax'          : ''
           ,'settingsMinMaxBounds' : ''
-          ,'settingsDepth'        : 0
+		  ,'settingsDepth'        : 0
+		  ,'settingsDepths'       : 0
           ,'settingsMaxDepth'     : 0
+		  ,'settingsDepthUnits'   : ''
           ,'rank'                 : ''
           ,'legend'               : ''
           ,'timestamp'            : ''
@@ -315,7 +319,9 @@ function initMainStore() {
           ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[6]
           ,'settingsMinMaxBounds' : '0-6'
           ,'settingsDepth'        : 0
+		  ,'settingsDepths'       : layerConfig.availableLayers[layerType][i].depths
           ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
+		  ,'settingsDepthUnits'   : layerConfig.availableLayers[layerType][i].depthUnits
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -352,7 +358,9 @@ function initMainStore() {
           ,'settingsMax'          : defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[4]
           ,'settingsMinMaxBounds' : '0-70'
           ,'settingsDepth'        : 0
+		  ,'settingsDepths'       : 0
           ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
+		  ,'settingsDepthUnits'   : ''
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -389,7 +397,9 @@ function initMainStore() {
           ,'settingsMax'          : /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? defaultStyles[layerConfig.availableLayers[layerType][i].title].split('-')[2] : ''
           ,'settingsMinMaxBounds' : /Height|Hgt/.test(layerConfig.availableLayers[layerType][i].title) ? '0-9' : ''
           ,'settingsDepth'        : 0
+		  ,'settingsDepths'       : 0
           ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
+		  ,'settingsDepthUnits'   : ''
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -426,7 +436,9 @@ function initMainStore() {
           ,'settingsMax'          : ''
           ,'settingsMinMaxBounds' : ''
           ,'settingsDepth'        : 0
+		  ,'settingsDepths'       : 0
           ,'settingsMaxDepth'     : layerConfig.availableLayers[layerType][i].maxDepth
+		  ,'settingsDepthUnits'   : ''
           ,'rank'                 : ''
           ,'legend'               : wms + 'LAYER=' + layerConfig.availableLayers[layerType][i].name + '&FORMAT=image/png&TRANSPARENT=TRUE&STYLES=' + defaultStyles[layerConfig.availableLayers[layerType][i].title] + '&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&TIME=&SRS=EPSG:3857&LAYERS=' + layerConfig.availableLayers[layerType][i].name
           ,'timestamp'            : ''
@@ -1181,7 +1193,7 @@ function initComponents() {
                     ,new Ext.Button({columnWidth : 1,text : 'Reset',handler : function() {resetCustomDateFields()}})
                     ,{html : '&nbsp',bodyStyle : 'padding-top:6px;background:transparent',width : 25}
                   ]})
-                ] 
+                ]
               }}
               ,{
                  text    : 'Requery'
@@ -1242,12 +1254,12 @@ function initComponents() {
                   ts.style.width  = win.getWidth() - 15;
                   ts.style.height = win.getHeight() - 55;
                   var spd = [];
-                  var dir = []; 
+                  var dir = [];
                   if (!chartData || chartData.length <= 0) {
                     ts.innerHTML = '<table class="obsPopup timeSeries"><tr><td><img width=3 height=3 src="img/blank.png"><br/><img width=8 height=1 src="img/blank.png">Click anywhere on the map or on a dot to view a time-series graph of model or observation output.<br/><img width=8 height=1 src="img/blank.png"><img src="img/graph_primer.png"></td></tr></table>';
                   }
                   else if (chartData && chartData.length > 0 && typeof chartData[0] == 'string' && chartData[0].indexOf('QUERY ERROR') == 0) {
-                    ts.innerHTML = '<table class="obsPopup timeSeries"><tr><td><img width=3 height=3 src="img/blank.png"><br/><font color="red">' + chartData[0] + '</font><br/>' + '<img width=8 height=1 src="img/blank.png">Click anywhere on the map or on a dot to view a time-series graph of model or observation output.<br/><img width=8 height=1 src="img/blank.png"><img src="img/graph_primer.png"></td></tr></table>'; 
+                    ts.innerHTML = '<table class="obsPopup timeSeries"><tr><td><img width=3 height=3 src="img/blank.png"><br/><font color="red">' + chartData[0] + '</font><br/>' + '<img width=8 height=1 src="img/blank.png">Click anywhere on the map or on a dot to view a time-series graph of model or observation output.<br/><img width=8 height=1 src="img/blank.png"><img src="img/graph_primer.png"></td></tr></table>';
                   }
                   else {
                     for (var i = 0; i < chartData.length; i++) {
@@ -1340,6 +1352,13 @@ function renderLegend(val,metadata,rec) {
   var a = [rec.get('displayName').split('||')[0]];
   if (rec.get('timestamp') && rec.get('timestamp') != '') {
     a.push(rec.get('timestamp'));
+  }
+
+  if (mainStore.getAt(idx).get('settingsDepth') > 0) {
+      a.push('Depth: ' + mainStore.getAt(idx).get('settingsDepths')[mainStore.getAt(idx).get('settingsDepth')] + ' ' + mainStore.getAt(idx).get('settingsDepthUnits'));
+  }
+  else {
+    a.push('Depth: Surface');
   }
   if (mainStore.getAt(idx).get('legend') != '') {
     if (!legendImages[rec.get('name')]) {
@@ -1560,13 +1579,13 @@ function initMap() {
         ,layers     : layerConfig.layerStack[i].name
         ,sensors    : layerConfig.layerStack[i].sensors
         ,bbox       : layerConfig.layerStack[i].bbox
-        ,url        : 'http://coastmap.com/ecop/wms.aspx?'
+        ,url        : '<?php echo $wms; ?>'
       });
     }
     else {
       addWMS({
          name          : layerConfig.layerStack[i].title
-        ,url           : 'http://coastmap.com/ecop/wms.aspx?'
+        ,url           : '<?php echo $wms; ?>'
         ,layers        : layerConfig.layerStack[i].name
         ,format        : 'image/png'
         ,styles        : defaultStyles[layerConfig.layerStack[i].title]
@@ -1632,7 +1651,7 @@ function addBuoy(l) {
       }
       ,onUnselect : function(f) {
         map.removePopup(f.popup);
-        f.popup.destroy(); 
+        f.popup.destroy();
         f.popup = null;
       }
     });
@@ -1667,7 +1686,7 @@ function addWMS(l) {
        isBaseLayer : false
       ,projection  : l.projection
       ,singleTile  : l.singleTile
-      ,ratio       : 1
+	  ,ratio       : 1
       ,visibility  : mainStore.getAt(mainStore.find('name',l.name)).get('status') == 'on'
       ,opacity     : mainStore.getAt(mainStore.find('name',l.name)).get('settingsOpacity') / 100
       ,wrapDateLine     : true
@@ -1802,7 +1821,7 @@ function addLayer(lyr,timeSensitive) {
     // the sat SST tds layer can be ID'ed by GFI_TIME -- this layer also needs COLORSCALERANGE
     // I didn't want to make this part of the URL
     if (lyr.url.indexOf('GFI_TIME') >= 0) {
-      lyr.mergeNewParams({COLORSCALERANGE : getColorScaleRange()}); 
+      lyr.mergeNewParams({COLORSCALERANGE : getColorScaleRange()});
     }
   }
   map.addLayer(lyr);
@@ -1843,7 +1862,7 @@ function mapClick(xy,doWMS,chartIt) {
       f.attributes.img = 'Delete-icon.png';
       lyrQueryPts.addFeatures(f);
     }
-  
+
     var queryLyrs = [modelQueryLyr];
     if (doWMS && modelQueryLyr && modelQueryLyr.visibility && modelQueryLyr.DEFAULT_PARAMS) {
       // now that we've established our pivot point, see if there are any other active layers to drill into based on the category
@@ -2085,7 +2104,7 @@ function setLayerInfo(layerName,on) {
        id        : 'info.popup.' + layerName
       ,title     : mainRec.get('displayName').split('||')[0]
       ,anchor    : 'right'
-      ,target    : 'info.' + layerName 
+      ,target    : 'info.' + layerName
       ,autoHide  : false
       ,closable  : true
       ,width     : 250
@@ -2197,7 +2216,12 @@ function setLayerSettings(layerName) {
             })()
           ,plugins  : new Ext.slider.Tip({
             getText : function(thumb) {
-              return String.format('<b>{0}</b>',thumb.value);
+				if (mainStore.getAt(idx).get('settingsDepths') != 0) {
+					return String.format('<b>{0}</b>', mainStore.getAt(idx).get('settingsDepths')[thumb.value] + ' ' + mainStore.getAt(idx).get('settingsDepthUnits'));
+				}
+				else {
+					return String.format('<b>{0}</b>', thumb.value);
+				}
             }
           })
           ,listeners : {
@@ -2534,7 +2558,7 @@ function setLayerSettings(layerName) {
               new Ext.ToolTip({
                  id     : 'tooltip.' + id + '.tailMagnitude'
                 ,target : id + '.tailMagnitude'
-                ,html   : "Choose whether or not the vector tail length will vary based on its magnitude.  The difference may be subtle in layers with small magnitude variability." 
+                ,html   : "Choose whether or not the vector tail length will vary based on its magnitude.  The difference may be subtle in layers with small magnitude variability."
               });
               el.addListener('select',function(comboBox,rec) {
                 mainStore.getAt(idx).set('settingsTailMag',rec.get('name'));
@@ -2613,6 +2637,7 @@ function setLayerSettings(layerName) {
 }
 
 function setCustomStyles(rec) {
+    console.log('test');
   var styles = [rec.get('settingsBaseStyle')];
   if (rec.get('settingsColorMap') != '') {
     styles.push(rec.get('settingsColorMap'));
@@ -2847,7 +2872,7 @@ function getBookmarks(p,m) {
       var json = new OpenLayers.Format.JSON().read(r.responseText);
       var allBm  = [];
       var top5Bm = [];
-      for (var i = 0; i < json.all.length; i++) { 
+      for (var i = 0; i < json.all.length; i++) {
         allBm.push({
            icon        : 'img/layers16.png'
           ,text        : json.all[i].name
@@ -2862,7 +2887,7 @@ function getBookmarks(p,m) {
           ,sessionInfo : json.top5[i]
           ,handler     : function(b) {restoreSession(b.sessionInfo)}
         });
-      } 
+      }
       m.add([
          {text : '<font style="color:#15428b"><b>Most recent sessions</b></font>',canActivate : false}
         ,top5Bm
@@ -3015,7 +3040,7 @@ function restoreSession(s) {
       recs.push(rec);
     }
   });
-  Ext.getCmp('currentsGridPanel').getSelectionModel().selectRecords(recs); 
+  Ext.getCmp('currentsGridPanel').getSelectionModel().selectRecords(recs);
   recs = [];
   windsStore.each(function(rec) {
     if (activeLayers[rec.get('name')]) {
