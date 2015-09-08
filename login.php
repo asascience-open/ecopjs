@@ -3,7 +3,7 @@
 ob_start();
 session_start();
 
-$config = getenv('config') ? getenv('config') : 'DEFAULT';
+$config = getenv('config') ? getenv('config') : 'ecop';
 require_once("config/$config/conf.php");
 require_once('auth.php');
 
